@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel de Chat Grupal</title>
+<style>
+:root{
+    --bg:#f3f5f7;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --primary:#0a7cff;
+    --danger:#ef4444;
+    --border:#e5e7eb;
+    --shadow:0 8px 24px rgba(0,0,0,0.08);
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+.app{
+    min-height:100vh;
+    display:flex;
+}
+
+.sidebar{
+    width:280px;
+    background:var(--card);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    top:0;
+    left:0;
+    bottom:0;
+    transform:translateX(-100%);
+    transition:transform 0.2s ease;
+    z-index:20;
+}
+
+.sidebar.open{
+    transform:translateX(0);
+}
+
+.sidebar-header{
+    padding:16px;
+    background:var(--primary);
+    color:#fff;
+    font-weight:bold;
+}
+
+.nav{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    padding:12px;
+}
+
+.nav button{
+    background:transparent;
+    border:1px solid var(--border);
+    padding:10px 12px;
+    border-radius:8px;
+    text-align:left;
+    cursor:pointer;
+    color:var(--text);
+}
+
+.nav button.active{
+    border-color:var(--primary);
+    color:var(--primary);
+}
+
+.content{
+    flex:1;
+    margin-left:0;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+
+.topbar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.icon-btn{
+    width:40px;
+    height:40px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:var(--card);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.grid{
+    display:grid;
+    gap:16px;
+    grid-template-columns:1fr;
+}
+
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px;
+    box-shadow:var(--shadow);
+}
+
+.card-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+}
+
+.card-header h3{
+    font-size:16px;
+}
+
+.form-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.input, .select{
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    outline:none;
+    min-width:180px;
+    flex:1;
+}
+
+.btn{
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    padding:10px 12px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.btn.secondary{
+    background:#eef2ff;
+    color:#1e3a8a;
+    border:1px solid #c7d2fe;
+}
+
+.btn.danger{
+    background:var(--danger);
+}
+
+.btn.small{
+    padding:6px 8px;
+    font-size:12px;
+}
+
+.list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.list-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border:1px solid var(--border);
+    padding:10px 12px;
+    border-radius:10px;
+    background:#fafafa;
+}
+
+.list-item .meta{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+}
+
+.list-item .actions{
+    display:flex;
+    gap:6px;
+}
+
+.chat-panel{
+    display:flex;
+    flex-direction:column;
+    height:520px;
+}
+
+.chat-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 0;
+}
+
+.chat-messages{
+    flex:1;
+    overflow-y:auto;
+    padding:12px;
+    background:#e5ddd5;
+    border-radius:12px;
+}
+
+.message{
+    max-width:80%;
+    margin-bottom:10px;
+    padding:10px;
+    border-radius:10px;
+    background:#fff;
+}
+
+.message.sent{
+    margin-left:auto;
+    background:#dcf8c6;
+}
+
+.message .small{
+    font-size:11px;
+    color:var(--muted);
+}
+
+.message-actions{
+    display:flex;
+    gap:6px;
+    margin-top:6px;
+}
+
+.chat-input{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+}
+
+.badge{
+    font-size:12px;
+    padding:2px 8px;
+    border-radius:999px;
+    background:#e0f2fe;
+    color:#0369a1;
+}
+
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.35);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity 0.2s ease, visibility 0.2s ease;
+    z-index:10;
+}
+
+.overlay.show{
+    opacity:1;
+    visibility:visible;
+}
+
+@media (min-width:900px){
+    .content{
+        margin-left:280px;
+    }
+    .sidebar{
+        transform:translateX(0);
+        position:fixed;
+    }
+    .overlay{
+        display:none;
+    }
+    .grid{
+        grid-template-columns:1.2fr 1fr;
+    }
+}
+</style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">Administración</div>
+        <div class="nav">
+            <button class="active" data-tab="chat">Chat</button>
+            <button data-tab="admins">Administradores</button>
+            <button data-tab="groups">Grupos</button>
+            <button data-tab="messages">Mensajes</button>
+            <button data-tab="users">Usuarios</button>
+        </div>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <main class="content">
+        <div class="topbar">
+            <button class="icon-btn" id="menuBtn" aria-label="Abrir menú">☰</button>
+            <div>
+                <div class="badge" id="currentGroupBadge">Grupo: General</div>
+            </div>
+        </div>
+
+        <section class="grid">
+            <div class="card" data-panel="chat">
+                <div class="card-header">
+                    <h3>Vista de Chat</h3>
+                    <span class="badge" id="memberCount">0 miembros</span>
+                </div>
+
+                <div class="chat-panel">
+                    <div class="chat-header">
+                        <div>
+                            <strong id="chatGroupName">General</strong>
+                            <div class="small" id="chatInvite">Enlace: -</div>
+                        </div>
+                        <select class="select" id="groupSelector"></select>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages"></div>
+
+                    <div class="chat-input">
+                        <input class="input" id="quickMessage" placeholder="Mensaje rápido">
+                        <button class="btn" id="sendQuick">Enviar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" data-panel="admins">
+                <div class="card-header">
+                    <h3>Administradores</h3>
+                </div>
+                <div class="form-row">
+                    <input class="input" id="adminName" placeholder="Nombre">
+                    <input class="input" id="adminEmail" placeholder="Correo">
+                    <button class="btn" id="addAdmin">Agregar</button>
+                </div>
+                <div class="list" id="adminList"></div>
+            </div>
+
+            <div class="card" data-panel="groups">
+                <div class="card-header">
+                    <h3>Grupos</h3>
+                </div>
+                <div class="form-row">
+                    <input class="input" id="groupName" placeholder="Nombre del grupo">
+                    <input class="input" id="groupLink" placeholder="Enlace de invitación">
+                    <input class="input" id="groupMembers" placeholder="Miembros" type="number">
+                    <button class="btn" id="addGroup">Crear</button>
+                </div>
+                <div class="list" id="groupList"></div>
+            </div>
+
+            <div class="card" data-panel="messages">
+                <div class="card-header">
+                    <h3>Mensajes</h3>
+                </div>
+                <div class="form-row">
+                    <select class="select" id="messageGroup"></select>
+                    <input class="input" id="messageUser" placeholder="Usuario">
+                    <input class="input" id="messageText" placeholder="Mensaje">
+                    <button class="btn" id="addMessage">Agregar</button>
+                </div>
+                <div class="list" id="messageList"></div>
+            </div>
+
+            <div class="card" data-panel="users">
+                <div class="card-header">
+                    <h3>Usuarios del Chat</h3>
+                </div>
+                <div class="form-row">
+                    <input class="input" id="userName" placeholder="Nombre">
+                    <input class="input" id="userNickname" placeholder="Apodo">
+                    <input class="input" id="userEmail" placeholder="Correo">
+                    <input class="input" id="userPhone" placeholder="Teléfono">
+                    <input class="input" id="userAddress" placeholder="Dirección">
+                    <button class="btn" id="addUser">Agregar</button>
+                </div>
+                <div class="list" id="userList"></div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+const state = {
+    admins:[
+        {id:1,name:"María Pérez",email:"maria@chat.com"},
+        {id:2,name:"Carlos Rodríguez",email:"carlos@chat.com"}
+    ],
+    groups:[
+        {id:1,name:"General",link:"https://chat.com/invite/abc",
+        members:12},
+        {id:2,name:"Proyecto",link:"https://chat.com/invite/xyz",
+        members:6}
+    ],
+    messages:[
+        {id:1,groupId:1,user:"Juan",text:"Hola equipo"},
+        {id:2,groupId:1,user:"Ana",text:"Vamos avanzando"},
+        {id:3,groupId:2,user:"Luis",text:"Revisen el documento"}
+    ],
+    users:[
+        {
+            id:1,
+            name:"Juan Gómez",
+            nickname:"juang",
+            email:"juan@chat.com",
+            phone:"555-1234",
+            address:"Calle 12, Ciudad"
+        },
+        {
+            id:2,
+            name:"Ana López",
+            nickname:"annalu",
+            email:"ana@chat.com",
+            phone:"555-5678",
+            address:"Av. Central 45"
+        }
+    ],
+    selectedGroupId:1
+};
+
+const el = (id) => document.getElementById(id);
+
+const adminList = el("adminList");
+const groupList = el("groupList");
+const messageList = el("messageList");
+const userList = el("userList");
+const groupSelector = el("groupSelector");
+const messageGroup = el("messageGroup");
+const chatMessages = el("chatMessages");
+
+function renderAdmins(){
+    adminList.innerHTML = "";
+    state.admins.forEach((a) => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+            <div class="meta">
+                <strong>${a.name}</strong>
+                <span class="small">${a.email}</span>
+            </div>
+            <div class="actions">
+                <button class="btn secondary" data-edit="${a.id}">
+                    Editar
+                </button>
+                <button class="btn danger" data-del="${a.id}">
+                    Eliminar
+                </button>
+            </div>
+        `;
+        adminList.appendChild(item);
+    });
+}
+
+function renderGroups(){
+    groupList.innerHTML = "";
+    groupSelector.innerHTML = "";
+    messageGroup.innerHTML = "";
+    state.groups.forEach((g) => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+            <div class="meta">
+                <strong>${g.name}</strong>
+                <span class="small">${g.members} miembros</span>
+                <span class="small">${g.link}</span>
+            </div>
+            <div class="actions">
+                <button class="btn secondary" data-edit="${g.id}">
+                    Editar
+                </button>
+                <button class="btn danger" data-del="${g.id}">
+                    Eliminar
+                </button>
+            </div>
+        `;
+        groupList.appendChild(item);
+
+        const opt1 = document.createElement("option");
+        opt1.value = g.id;
+        opt1.textContent = g.name;
+        groupSelector.appendChild(opt1);
+
+        const opt2 = document.createElement("option");
+        opt2.value = g.id;
+        opt2.textContent = g.name;
+        messageGroup.appendChild(opt2);
+    });
+
+    groupSelector.value = state.selectedGroupId;
+    messageGroup.value = state.selectedGroupId;
+    renderChat();
+}
+
+function renderMessages(){
+    messageList.innerHTML = "";
+    state.messages.forEach((m) => {
+        const group = state.groups.find((g) => g.id === m.groupId);
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+            <div class="meta">
+                <strong>${m.user}</strong>
+                <span class="small">${m.text}</span>
+                <span class="small">Grupo: ${group ? group.name : "-"}</span>
+            </div>
+            <div class="actions">
+                <button class="btn secondary" data-edit="${m.id}">
+                    Editar
+                </button>
+                <button class="btn danger" data-del="${m.id}">
+                    Eliminar
+                </button>
+            </div>
+        `;
+        messageList.appendChild(item);
+    });
+}
+
+function renderUsers(){
+    userList.innerHTML = "";
+    state.users.forEach((u) => {
+        const item = document.createElement("div");
+        item.className = "list-item";
+        item.innerHTML = `
+            <div class="meta">
+                <strong>${u.name} (${u.nickname})</strong>
+                <span class="small">${u.email}</span>
+                <span class="small">Tel: ${u.phone}</span>
+                <span class="small">${u.address}</span>
+            </div>
+            <div class="actions">
+                <button class="btn secondary" data-edit="${u.id}">
+                    Editar
+                </button>
+                <button class="btn danger" data-del="${u.id}">
+                    Eliminar
+                </button>
+            </div>
+        `;
+        userList.appendChild(item);
+    });
+}
+
+function renderChat(){
+    const group = state.groups.find((g) => g.id === state.selectedGroupId);
+    el("chatGroupName").textContent = group ? group.name : "Sin grupo";
+    el("chatInvite").textContent = group ? `Enlace: ${group.link}` : "Enlace: -";
+    el("memberCount").textContent = group ? `${group.members} miembros` : "0 miembros";
+    el("currentGroupBadge").textContent = group
+        ? `Grupo: ${group.name}`
+        : "Grupo: -";
+
+    chatMessages.innerHTML = "";
+    state.messages
+        .filter((m) => m.groupId === state.selectedGroupId)
+        .forEach((m) => {
+            const msg = document.createElement("div");
+            msg.className = "message";
+            msg.innerHTML = `
+                <strong>${m.user}</strong>
+                <div>${m.text}</div>
+                <div class="message-actions">
+                    <button class="btn secondary small" data-chat-edit="${m.id}">
+                        Editar
+                    </button>
+                    <button class="btn danger small" data-chat-del="${m.id}">
+                        Eliminar
+                    </button>
+                </div>
+            `;
+            chatMessages.appendChild(msg);
+        });
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function addAdmin(){
+    const name = el("adminName").value.trim();
+    const email = el("adminEmail").value.trim();
+    if(!name || !email){return;}
+    state.admins.push({
+        id:Date.now(),
+        name,
+        email
+    });
+    el("adminName").value = "";
+    el("adminEmail").value = "";
+    renderAdmins();
+}
+
+function addGroup(){
+    const name = el("groupName").value.trim();
+    const link = el("groupLink").value.trim();
+    const members = Number(el("groupMembers").value);
+    if(!name || !link || Number.isNaN(members)){return;}
+    state.groups.push({
+        id:Date.now(),
+        name,
+        link,
+        members
+    });
+    el("groupName").value = "";
+    el("groupLink").value = "";
+    el("groupMembers").value = "";
+    renderGroups();
+}
+
+function addMessage(){
+    const groupId = Number(messageGroup.value);
+    const user = el("messageUser").value.trim();
+    const text = el("messageText").value.trim();
+    if(!groupId || !user || !text){return;}
+    state.messages.push({
+        id:Date.now(),
+        groupId,
+        user,
+        text
+    });
+    el("messageUser").value = "";
+    el("messageText").value = "";
+    renderMessages();
+    renderChat();
+}
+
+function addUser(){
+    const name = el("userName").value.trim();
+    const nickname = el("userNickname").value.trim();
+    const email = el("userEmail").value.trim();
+    const phone = el("userPhone").value.trim();
+    const address = el("userAddress").value.trim();
+    if(!name || !nickname || !email || !phone || !address){return;}
+    state.users.push({
+        id:Date.now(),
+        name,
+        nickname,
+        email,
+        phone,
+        address
+    });
+    el("userName").value = "";
+    el("userNickname").value = "";
+    el("userEmail").value = "";
+    el("userPhone").value = "";
+    el("userAddress").value = "";
+    renderUsers();
+}
+
+function sendQuick(){
+    const text = el("quickMessage").value.trim();
+    if(!text){return;}
+    state.messages.push({
+        id:Date.now(),
+        groupId:state.selectedGroupId,
+        user:"Administrador",
+        text
+    });
+    el("quickMessage").value = "";
+    renderMessages();
+    renderChat();
+}
+
+function handleListActions(container, type){
+    container.addEventListener("click", (e) => {
+        const editId = e.target.getAttribute("data-edit");
+        const delId = e.target.getAttribute("data-del");
+
+        if(editId){
+            if(type === "admin"){
+                const a = state.admins.find((x) => x.id === Number(editId));
+                const name = prompt("Nombre", a.name);
+                const email = prompt("Correo", a.email);
+                if(name && email){
+                    a.name = name;
+                    a.email = email;
+                    renderAdmins();
+                }
+            }
+            if(type === "group"){
+                const g = state.groups.find((x) => x.id === Number(editId));
+                const name = prompt("Nombre", g.name);
+                const link = prompt("Enlace", g.link);
+                const members = prompt("Miembros", g.members);
+                if(name && link && members){
+                    g.name = name;
+                    g.link = link;
+                    g.members = Number(members);
+                    renderGroups();
+                }
+            }
+            if(type === "message"){
+                const m = state.messages.find((x) => x.id === Number(editId));
+                const user = prompt("Usuario", m.user);
+                const text = prompt("Mensaje", m.text);
+                if(user && text){
+                    m.user = user;
+                    m.text = text;
+                    renderMessages();
+                    renderChat();
+                }
+            }
+            if(type === "user"){
+                const u = state.users.find((x) => x.id === Number(editId));
+                const name = prompt("Nombre", u.name);
+                const nickname = prompt("Apodo", u.nickname);
+                const email = prompt("Correo", u.email);
+                const phone = prompt("Teléfono", u.phone);
+                const address = prompt("Dirección", u.address);
+                if(name && nickname && email && phone && address){
+                    u.name = name;
+                    u.nickname = nickname;
+                    u.email = email;
+                    u.phone = phone;
+                    u.address = address;
+                    renderUsers();
+                }
+            }
+        }
+
+        if(delId){
+            if(type === "admin"){
+                state.admins = state.admins.filter((x) => x.id !== Number(delId));
+                renderAdmins();
+            }
+            if(type === "group"){
+                state.groups = state.groups.filter((x) => x.id !== Number(delId));
+                if(!state.groups.find((g) => g.id === state.selectedGroupId)){
+                    state.selectedGroupId = state.groups[0]?.id || 0;
+                }
+                renderGroups();
+                renderMessages();
+            }
+            if(type === "message"){
+                state.messages = state.messages.filter((x) => x.id !== Number(delId));
+                renderMessages();
+                renderChat();
+            }
+            if(type === "user"){
+                state.users = state.users.filter((x) => x.id !== Number(delId));
+                renderUsers();
+            }
+        }
+    });
+}
+
+function handleChatCrud(){
+    chatMessages.addEventListener("click", (e) => {
+        const editId = e.target.getAttribute("data-chat-edit");
+        const delId = e.target.getAttribute("data-chat-del");
+
+        if(editId){
+            const m = state.messages.find((x) => x.id === Number(editId));
+            const text = prompt("Mensaje", m.text);
+            if(text){
+                m.text = text;
+                renderMessages();
+                renderChat();
+            }
+        }
+
+        if(delId){
+            state.messages = state.messages.filter((x) => x.id !== Number(delId));
+            renderMessages();
+            renderChat();
+        }
+    });
+}
+
+function initNav(){
+    const navButtons = document.querySelectorAll(".nav button");
+    navButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            navButtons.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            const tab = btn.dataset.tab;
+            document.querySelectorAll("[data-panel]").forEach((panel) => {
+                panel.style.display = panel.dataset.panel === tab
+                    ? "block"
+                    : "none";
+            });
+        });
+    });
+}
+
+function initSidebar(){
+    const sidebar = el("sidebar");
+    const overlay = el("overlay");
+    el("menuBtn").addEventListener("click", () => {
+        sidebar.classList.add("open");
+        overlay.classList.add("show");
+    });
+    overlay.addEventListener("click", () => {
+        sidebar.classList.remove("open");
+        overlay.classList.remove("show");
+    });
+}
+
+groupSelector.addEventListener("change", (e) => {
+    state.selectedGroupId = Number(e.target.value);
+    renderChat();
+});
+
+el("addAdmin").addEventListener("click", addAdmin);
+el("addGroup").addEventListener("click", addGroup);
+el("addMessage").addEventListener("click", addMessage);
+el("addUser").addEventListener("click", addUser);
+el("sendQuick").addEventListener("click", sendQuick);
+
+handleListActions(adminList, "admin");
+handleListActions(groupList, "group");
+handleListActions(messageList, "message");
+handleListActions(userList, "user");
+handleChatCrud();
+
+initNav();
+initSidebar();
+renderAdmins();
+renderGroups();
+renderMessages();
+renderUsers();
+</script>
+</body>
+</html>

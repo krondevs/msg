@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat Grupal</title>
+<style>
+:root{
+    --wa-green:#25d366;
+    --wa-green-dark:#128c7e;
+    --wa-blue:#34b7f1;
+    --wa-bg:#efeae2;
+    --wa-bubble:#dcf8c6;
+    --wa-bubble-in:#ffffff;
+    --wa-text:#1f2c34;
+    --wa-muted:#667781;
+    --wa-border:#e5e5e5;
+    --wa-shadow:0 8px 24px rgba(0,0,0,0.12);
+    --wa-radius:16px;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+    background:linear-gradient(180deg,#e9f5ef 0%,#f5f7f8 100%);
+    color:var(--wa-text);
+}
+
+.app{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:stretch;
+    /*padding:16px;*/
+}
+
+.chat-container{
+    width:100%;
+    max-width:720px;
+    height:100%;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    background-color:#ffffff;
+    /*border-radius:18px;*/
+    box-shadow:var(--wa-shadow);
+    position:relative;
+    overflow:hidden;
+}
+
+.chat-header{
+    background:linear-gradient(90deg,var(--wa-green-dark),#0b7a6d);
+    color:white;
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.hamburger{
+    width:40px;
+    height:40px;
+    border:none;
+    background:rgba(255,255,255,0.12);
+    color:white;
+    font-size:20px;
+    cursor:pointer;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.chat-header-info{
+    flex-grow:1;
+}
+
+.chat-header-info h2{
+    margin:0;
+    font-size:16px;
+    font-weight:600;
+}
+
+.chat-header-info p{
+    margin:2px 0 0 0;
+    font-size:12px;
+    color:#e9f3f2;
+}
+
+.chat-header-actions{
+    display:flex;
+    gap:12px;
+}
+
+.action-btn{
+    border:none;
+    background:rgba(255,255,255,0.12);
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    border-radius:10px;
+    width:36px;
+    height:36px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.search-bar{
+    position:absolute;
+    top:64px;
+    left:0;
+    right:0;
+    background-color:#ffffff;
+    padding:10px 12px;
+    display:none;
+    gap:8px;
+    align-items:center;
+    border-bottom:1px solid var(--wa-border);
+    z-index:5;
+}
+
+.search-bar.show{
+    display:flex;
+}
+
+.search-input{
+    flex-grow:1;
+    padding:10px 14px;
+    border:1px solid var(--wa-border);
+    border-radius:20px;
+    outline:none;
+    background:#f9f9f9;
+}
+
+.search-nav{
+    display:flex;
+    gap:6px;
+}
+
+.search-btn{
+    border:1px solid var(--wa-border);
+    background:#f7f7f7;
+    border-radius:10px;
+    width:34px;
+    height:34px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+}
+
+.search-btn:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+}
+
+.search-meta{
+    font-size:12px;
+    color:var(--wa-muted);
+    min-width:70px;
+    text-align:right;
+}
+
+.chat-messages{
+    flex-grow:1;
+    overflow-y:auto;
+    padding:20px 16px 10px 16px;
+    background:var(--wa-bg);
+    background-image:
+        radial-gradient(#e0d8cf 1px, transparent 0),
+        radial-gradient(#e0d8cf 1px, transparent 0);
+    background-size:24px 24px;
+    background-position:0 0,12px 12px;
+}
+
+.chat-messages.with-search{
+    padding-top:68px;
+}
+
+.message{
+    max-width:82%;
+    margin-bottom:14px;
+    clear:both;
+    position:relative;
+    font-size:14px;
+    line-height:1.4;
+}
+
+.message-sent{
+    float:right;
+    background-color:var(--wa-bubble);
+    border-radius:18px 18px 4px 18px;
+    padding:10px 12px 12px 12px;
+    padding-right:36px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+}
+
+.message-received{
+    float:left;
+    background-color:var(--wa-bubble-in);
+    border-radius:18px 18px 18px 4px;
+    padding:10px 12px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+.message-username{
+    font-weight:600;
+    margin-bottom:4px;
+    font-size:12px;
+}
+
+.message-received .message-username{
+    color:#0b7a6d;
+}
+
+.message-sent .message-username{
+    display:none;
+}
+
+.message-status{
+    position:absolute;
+    bottom:6px;
+    right:10px;
+    font-size:11px;
+    color:#5f6f66;
+}
+
+.message-sent .message-status.read{
+    color:#0b7a6d;
+}
+
+.message-system{
+    background:#d9edf7;
+    color:#31708f;
+    padding:8px 12px;
+    border-radius:10px;
+    margin:0 auto 12px auto;
+    text-align:center;
+    font-size:12px;
+    float:none;
+    clear:both;
+    width:fit-content;
+}
+
+.highlight{
+    background-color:#fff59d;
+    border-radius:4px;
+    padding:0 2px;
+}
+
+.chat-input{
+    display:flex;
+    align-items:center;
+    padding:10px;
+    background:#f6f6f6;
+    border-top:1px solid var(--wa-border);
+    gap:10px;
+}
+
+.chat-input input{
+    flex-grow:1;
+    padding:12px 14px;
+    border:1px solid var(--wa-border);
+    border-radius:22px;
+    background:#ffffff;
+    outline:none;
+}
+
+.chat-input button{
+    background:var(--wa-green);
+    color:white;
+    border:none;
+    border-radius:50%;
+    width:42px;
+    height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:0 4px 10px rgba(37,211,102,0.35);
+}
+
+@media (min-width:768px){
+    .chat-container{
+        max-width:760px;
+    }
+}
+
+/* Sidebar */
+.sidebar{
+    position:fixed;
+    top:0;
+    left:-280px;
+    width:240px;
+    height:100vh;
+    background-color:#ffffff;
+    box-shadow:2px 0 14px rgba(0,0,0,0.2);
+    transition:left 0.25s ease;
+    z-index:1000;
+    display:flex;
+    flex-direction:column;
+}
+
+.sidebar.open{
+    left:0;
+}
+
+.sidebar-header{
+    background:linear-gradient(90deg,var(--wa-green-dark),#0b7a6d);
+    color:white;
+    padding:16px;
+    font-size:16px;
+}
+
+.group-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+    overflow-y:auto;
+}
+
+.group-item{
+    padding:14px 16px;
+    border-bottom:1px solid #f0f0f0;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.group-item:hover{
+    background-color:#f7f7f7;
+}
+
+.group-avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#d7f7e4,#f2fff7);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+    color:#0b7a6d;
+    font-weight:600;
+}
+
+.group-info{
+    display:flex;
+    flex-direction:column;
+}
+
+.group-name{
+    font-size:14px;
+    color:#222;
+}
+
+.group-meta{
+    font-size:12px;
+    color:#777;
+}
+
+/* Overlay */
+.overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color:rgba(0,0,0,0.35);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity 0.2s ease, visibility 0.2s ease;
+    z-index:900;
+}
+
+.overlay.show{
+    opacity:1;
+    visibility:visible;
+}
+</style>
+</head>
+<body>
+<div class="app">
+    <div class="chat-container">
+        <div class="chat-header">
+            <button class="hamburger" id="openMenu"
+                aria-label="Abrir menú">☰</button>
+            <div class="chat-header-info">
+                <h2>Grupo de Trabajo</h2>
+                <p>5 miembros</p>
+            </div>
+            <div class="chat-header-actions">
+                <span>👥</span>
+                <button class="action-btn" id="toggleSearch"
+                    aria-label="Buscar">🔍</button>
+                <span>⋯</span>
+            </div>
+        </div>
+
+        <div class="search-bar" id="searchBar">
+            <input class="search-input" id="searchInput" type="text"
+                placeholder="Buscar en el chat">
+            <div class="search-nav">
+                <button class="search-btn" id="prevBtn"
+                    aria-label="Anterior">▲</button>
+                <button class="search-btn" id="nextBtn"
+                    aria-label="Siguiente">▼</button>
+            </div>
+            <span class="search-meta" id="searchMeta">0/0</span>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message message-system">
+                María Pérez agregó a Carlos Rodríguez al grupo
+            </div>
+
+            <div class="message message-received">
+                <div class="message-username">Juan Gómez</div>
+                Hola a todos, ¿cómo van con el proyecto?
+            </div>
+
+            <div class="message message-received">
+                <div class="message-username">Ana López</div>
+                Estamos trabajando en los últimos detalles
+            </div>
+
+            <div class="message message-sent">
+                Perfecto, necesitamos terminarlo hoy
+                <div class="message-status">✔</div>
+            </div>
+
+            <div class="message message-received">
+                <div class="message-username">Carlos Rodríguez</div>
+                Ya casi lo tengo listo
+            </div>
+
+            <div class="message message-sent">
+                Excelente, envíenme un reporte
+                <div class="message-status read">✔✔</div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" placeholder="Escribe un mensaje">
+            <button>➤</button>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">Grupos</div>
+    <ul class="group-list">
+        <li class="group-item">
+            <div class="group-avatar">GT</div>
+            <div class="group-info">
+                <span class="group-name">Grupo de Trabajo</span>
+                <span class="group-meta">5 miembros</span>
+            </div>
+        </li>
+        <li class="group-item">
+            <div class="group-avatar">AM</div>
+            <div class="group-info">
+                <span class="group-name">Amigos</span>
+                <span class="group-meta">8 miembros</span>
+            </div>
+        </li>
+        <li class="group-item">
+            <div class="group-avatar">FA</div>
+            <div class="group-info">
+                <span class="group-name">Familia</span>
+                <span class="group-meta">6 miembros</span>
+            </div>
+        </li>
+        <li class="group-item">
+            <div class="group-avatar">PR</div>
+            <div class="group-info">
+                <span class="group-name">Proyecto</span>
+                <span class="group-meta">4 miembros</span>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<script>
+const openMenu = document.getElementById("openMenu");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+const toggleSearch = document.getElementById("toggleSearch");
+const searchBar = document.getElementById("searchBar");
+const searchInput = document.getElementById("searchInput");
+const searchMeta = document.getElementById("searchMeta");
+const chatMessages = document.getElementById("chatMessages");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+let matchIndex = 0;
+let matches = [];
+
+function openSidebar(){
+    sidebar.classList.add("open");
+    overlay.classList.add("show");
+}
+
+function closeSidebar(){
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+}
+
+openMenu.addEventListener("click", openSidebar);
+overlay.addEventListener("click", closeSidebar);
+document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape"){
+        closeSidebar();
+        closeSearch();
+    }
+});
+
+function closeSearch(){
+    searchBar.classList.remove("show");
+    chatMessages.classList.remove("with-search");
+    searchInput.value = "";
+    clearHighlights();
+    updateMeta();
+}
+
+toggleSearch.addEventListener("click", () => {
+    const isOpen = searchBar.classList.contains("show");
+    if(isOpen){
+        closeSearch();
+    }else{
+        searchBar.classList.add("show");
+        chatMessages.classList.add("with-search");
+        searchInput.focus();
+    }
+});
+
+function escapeRegExp(str){
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "$&");
+}
+
+function clearHighlights(){
+    const highlighted = chatMessages.querySelectorAll("span.highlight");
+    highlighted.forEach((span) => {
+        const textNode = document.createTextNode(span.textContent);
+        const parent = span.parentNode;
+        parent.replaceChild(textNode, span);
+        parent.normalize();
+    });
+    matches = [];
+    matchIndex = 0;
+}
+
+function getTextNodes(root){
+    const walker = document.createTreeWalker(
+        root,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode(node){
+                if(!node.nodeValue.trim()){
+                    return NodeFilter.FILTER_REJECT;
+                }
+                const parent = node.parentElement;
+                if(parent){
+                    if(parent.classList.contains("message-username")){
+                        return NodeFilter.FILTER_REJECT;
+                    }
+                    if(parent.classList.contains("message-status")){
+                        return NodeFilter.FILTER_REJECT;
+                    }
+                }
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        }
+    );
+
+    const nodes = [];
+    let current;
+    while((current = walker.nextNode())){
+        nodes.push(current);
+    }
+    return nodes;
+}
+
+function highlightMatches(query){
+    clearHighlights();
+    if(!query){
+        updateMeta();
+        return;
+    }
+
+    const q = query.toLowerCase();
+    const messages = chatMessages.querySelectorAll(".message");
+
+    messages.forEach((msg) => {
+        const textNodes = getTextNodes(msg);
+
+        textNodes.forEach((node) => {
+            const text = node.nodeValue;
+            const lower = text.toLowerCase();
+            let index = 0;
+
+            if(lower.indexOf(q) !== -1){
+                const frag = document.createDocumentFragment();
+
+                while(true){
+                    const found = lower.indexOf(q, index);
+                    if(found === -1){
+                        break;
+                    }
+                    frag.append(
+                        document.createTextNode(text.slice(index, found))
+                    );
+                    const span = document.createElement("span");
+                    span.className = "highlight";
+                    span.textContent = text.slice(
+                        found, found + q.length
+                    );
+                    frag.append(span);
+                    index = found + q.length;
+                }
+
+                frag.append(
+                    document.createTextNode(text.slice(index))
+                );
+                node.replaceWith(frag);
+            }
+        });
+    });
+
+    matches = Array.from(
+        chatMessages.querySelectorAll("span.highlight")
+    );
+    matchIndex = 0;
+    updateMeta();
+    scrollToMatch();
+}
+
+function updateMeta(){
+    const hasMatches = matches.length > 0;
+    searchMeta.textContent = hasMatches
+        ? `${matchIndex + 1}/${matches.length}`
+        : "0/0";
+    prevBtn.disabled = !hasMatches;
+    nextBtn.disabled = !hasMatches;
+}
+
+function scrollToMatch(){
+    if(!matches.length){
+        return;
+    }
+    const target = matches[matchIndex];
+    const parent = target.closest(".message");
+    if(parent){
+        parent.scrollIntoView({behavior:"smooth", block:"center"});
+    }
+}
+
+function goNext(){
+    if(!matches.length){
+        return;
+    }
+    matchIndex = (matchIndex + 1) % matches.length;
+    updateMeta();
+    scrollToMatch();
+}
+
+function goPrev(){
+    if(!matches.length){
+        return;
+    }
+    matchIndex = (matchIndex - 1 + matches.length) % matches.length;
+    updateMeta();
+    scrollToMatch();
+}
+
+prevBtn.addEventListener("click", goPrev);
+nextBtn.addEventListener("click", goNext);
+
+searchInput.addEventListener("input", (e) => {
+    highlightMatches(e.target.value.trim());
+});
+
+searchInput.addEventListener("keydown", (e) => {
+    if(!matches.length){
+        return;
+    }
+    if(e.key === "Enter"){
+        e.preventDefault();
+        if(e.shiftKey){
+            goPrev();
+        }else{
+            goNext();
+        }
+    }
+});
+
+function scrollToBottom(duration = 300){
+    if(!chatMessages){
+        return;
+    }
+
+    const reduce = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if(reduce || duration <= 0){
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return;
+    }
+
+    const start = chatMessages.scrollTop;
+    const end = chatMessages.scrollHeight;
+    const change = end - start;
+    const startTime = performance.now();
+
+    function easeOutCubic(t){
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    function animate(now){
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutCubic(progress);
+        chatMessages.scrollTop = start + change * eased;
+
+        if(progress < 1){
+            requestAnimationFrame(animate);
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    scrollToBottom();
+});
+</script>
+</body>
+</html>

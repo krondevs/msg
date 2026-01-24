@@ -1,0 +1,438 @@
+:root {
+  /* Colores futurísticos */
+  --neon-blue: #00ffff;
+  --neon-green: #39ff14;
+  --neon-pink: #ff073a;
+  --neon-purple: #bf00ff;
+  --neon-orange: #ff6600;
+  --electric-blue: #0080ff;
+  --cyber-yellow: #ffff00;
+
+  /* Colores de fondo */
+  --dark-bg: #0a0a0a;
+  --dark-secondary: #1a1a1a;
+  --dark-tertiary: #2a2a2a;
+
+  /* Colores de texto */
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-accent: #00ffff;
+
+  /* Gradientes */
+  --gradient-primary: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+  --gradient-secondary: linear-gradient(90deg, var(--neon-green), var(--electric-blue));
+  --gradient-accent: linear-gradient(135deg, var(--neon-pink), var(--neon-orange));
+}
+
+/* Elementos estructurales */
+html {
+  background: var(--dark-bg);
+  color: var(--text-primary);
+  font-family: 'Orbitron', monospace;
+}
+
+body {
+  background: radial-gradient(circle at center, var(--dark-secondary) 0%, var(--dark-bg) 100%);
+  overflow-x: hidden;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px var(--neon-blue);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* Párrafos y texto */
+p {
+  color: var(--text-secondary);
+  text-shadow: 0 0 5px var(--neon-green);
+  border-left: 2px solid var(--neon-blue);
+  padding-left: 15px;
+  transition: all 0.3s ease;
+}
+
+p:hover {
+  color: var(--text-primary);
+  border-left-color: var(--neon-green);
+  transform: translateX(10px);
+}
+
+/* Enlaces */
+a {
+  color: var(--neon-blue);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+a:hover {
+  color: var(--neon-green);
+  text-shadow: 0 0 10px var(--neon-green);
+  border-bottom-color: var(--neon-green);
+}
+
+a::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: var(--gradient-secondary);
+  transition: width 0.3s ease;
+}
+
+a:hover::before {
+  width: 100%;
+}
+
+/* Botones */
+button {
+  background: var(--gradient-primary);
+  border: 2px solid var(--neon-blue);
+  color: var(--text-primary);
+  padding: 12px 24px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 30px rgba(0, 255, 255, 0.5);
+  border-color: var(--neon-green);
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+button:hover::before {
+  left: 100%;
+}
+
+/* Inputs */
+input, textarea, select {
+  background: var(--dark-secondary);
+  border: 2px solid var(--neon-blue);
+  color: var(--text-primary);
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--neon-green);
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+  background: var(--dark-tertiary);
+}
+
+/* Listas */
+ul, ol {
+  list-style: none;
+  padding-left: 0;
+}
+
+li {
+  position: relative;
+  padding: 10px 20px;
+  margin: 5px 0;
+  background: var(--dark-secondary);
+  border-left: 3px solid var(--neon-blue);
+  transition: all 0.3s ease;
+  clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%);
+}
+
+li:hover {
+  background: var(--dark-tertiary);
+  border-left-color: var(--neon-green);
+  transform: translateX(10px);
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+}
+
+li::before {
+  content: '▶';
+  color: var(--neon-blue);
+  margin-right: 10px;
+  animation: pulse 2s infinite;
+}
+
+/* Tablas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--dark-secondary);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+}
+
+th, td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--neon-blue);
+  transition: all 0.3s ease;
+}
+
+th {
+  background: var(--gradient-primary);
+  color: var(--dark-bg);
+  text-shadow: none;
+  font-weight: bold;
+}
+
+tr:hover {
+  background: var(--dark-tertiary);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+}
+
+/* Divisores */
+div {
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+div:hover {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+/* Secciones */
+section {
+  background: var(--dark-secondary);
+  margin: 20px 0;
+  padding: 25px;
+  border-radius: 15px;
+  border: 2px solid var(--neon-blue);
+  position: relative;
+  overflow: hidden;
+}
+
+section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-secondary);
+  animation: scan 3s linear infinite;
+}
+
+/* Navegación */
+nav {
+  background: var(--dark-secondary);
+  padding: 15px;
+  border-bottom: 3px solid var(--neon-blue);
+  box-shadow: 0 5px 20px rgba(0, 255, 255, 0.2);
+}
+
+nav a {
+  margin: 0 15px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+nav a:hover {
+  background: var(--gradient-primary);
+  transform: scale(1.1);
+}
+
+/* Elementos de código */
+code, pre {
+  background: var(--dark-bg);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-blue);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: 'Courier New', monospace;
+  box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.1);
+}
+
+/* Elementos multimedia */
+img, video {
+  border: 2px solid var(--neon-blue);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  filter: brightness(0.9) contrast(1.1);
+}
+
+img:hover, video:hover {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+  transform: scale(1.02);
+  filter: brightness(1) contrast(1.2);
+}
+
+/* Formularios */
+form {
+  background: var(--dark-secondary);
+  padding: 25px;
+  border-radius: 15px;
+  border: 2px solid var(--neon-blue);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+}
+
+fieldset {
+  border: 2px solid var(--neon-purple);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 15px 0;
+  background: var(--dark-tertiary);
+}
+
+legend {
+  color: var(--neon-purple);
+  padding: 0 10px;
+  font-weight: bold;
+}
+
+/* Elementos semánticos */
+article {
+  background: var(--dark-secondary);
+  padding: 20px;
+  margin: 15px 0;
+  border-left: 5px solid var(--neon-green);
+  border-radius: 0 10px 10px 0;
+  transition: all 0.3s ease;
+}
+
+article:hover {
+  background: var(--dark-tertiary);
+  box-shadow: -5px 0 20px rgba(57, 255, 20, 0.2);
+}
+
+aside {
+  background: var(--dark-tertiary);
+  border: 2px solid var(--neon-orange);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 0 20px rgba(255, 102, 0, 0.2);
+}
+
+footer {
+  background: var(--gradient-accent);
+  padding: 20px;
+  text-align: center;
+  border-top: 3px solid var(--neon-pink);
+  box-shadow: 0 -5px 20px rgba(255, 7, 58, 0.3);
+}
+
+header {
+  background: var(--gradient-primary);
+  padding: 25px;
+  text-align: center;
+  border-bottom: 3px solid var(--neon-blue);
+  box-shadow: 0 5px 25px rgba(0, 255, 255, 0.4);
+}
+
+/* Citas */
+blockquote {
+  background: var(--dark-tertiary);
+  border-left: 5px solid var(--neon-yellow);
+  padding: 20px;
+  margin: 20px 0;
+  font-style: italic;
+  position: relative;
+  border-radius: 0 10px 10px 0;
+}
+
+blockquote::before {
+  content: '"';
+  font-size: 4em;
+  color: var(--cyber-yellow);
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  opacity: 0.3;
+}
+
+/* Elementos de tiempo */
+time {
+  color: var(--neon-orange);
+  background: var(--dark-tertiary);
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-family: 'Courier New', monospace;
+  border: 1px solid var(--neon-orange);
+}
+
+/* Progress bar */
+progress {
+  width: 100%;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--dark-tertiary);
+  border: 2px solid var(--neon-blue);
+  overflow: hidden;
+}
+
+progress::-webkit-progress-bar {
+  background: var(--dark-tertiary);
+  border-radius: 10px;
+}
+
+progress::-webkit-progress-value {
+  background: var(--gradient-secondary);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+/* Animaciones */
+@keyframes glow {
+  from { text-shadow: 0 0 20px var(--neon-blue); }
+  to { text-shadow: 0 0 30px var(--neon-blue), 0 0 40px var(--neon-blue); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Efectos adicionales */
+.cyber-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.cyber-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, var(--neon-blue), var(--neon-green), var(--neon-pink), var(--neon-purple));
+  z-index: -1;
+  animation: borderRotate 4s linear infinite;
+}
+
+@keyframes borderRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

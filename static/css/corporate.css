@@ -1,0 +1,492 @@
+:root {
+    /* Colores corporativos principales */
+    --primary-blue: #2563eb;
+    --primary-dark: #1e40af;
+    --primary-light: #3b82f6;
+  
+    /* Colores secundarios */
+    --secondary-gray: #64748b;
+    --secondary-light: #94a3b8;
+    --secondary-dark: #475569;
+  
+    /* Colores de estado */
+    --success-green: #059669;
+    --warning-orange: #d97706;
+    --error-red: #dc2626;
+    --info-cyan: #0891b2;
+  
+    /* Colores de fondo */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    --bg-dark: #1e293b;
+  
+    /* Colores de texto */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-white: #ffffff;
+  
+    /* Colores de borde */
+    --border-light: #e2e8f0;
+    --border-medium: #cbd5e1;
+    --border-dark: #94a3b8;
+  
+    /* Sombras corporativas */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  }
+  
+  /* Elementos estructurales */
+  html {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+  
+  body {
+    background: var(--bg-secondary);
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  
+  /* Headers corporativos */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--primary-blue);
+    padding-bottom: 0.5rem;
+  }
+  
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; border-color: var(--secondary-gray); }
+  h3 { font-size: 1.5rem; border-color: var(--border-medium); }
+  
+  /* Párrafos */
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+  }
+  
+  p:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  
+  /* Enlaces corporativos */
+  a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid transparent;
+  }
+  
+  a:hover {
+    color: var(--primary-dark);
+    border-bottom-color: var(--primary-blue);
+  }
+  
+  a:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  /* Botones corporativos */
+  button {
+    background: var(--primary-blue);
+    color: var(--text-white);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    font-family: inherit;
+  }
+  
+  button:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  
+  button:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+  }
+  
+  button:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  /* Botones secundarios */
+  button.secondary {
+    background: var(--bg-primary);
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+  }
+  
+  button.secondary:hover {
+    background: var(--primary-blue);
+    color: var(--text-white);
+  }
+  
+  /* Formularios corporativos */
+  input, textarea, select {
+    background: var(--bg-primary);
+    border: 2px solid var(--border-light);
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+  }
+  
+  input:invalid {
+    border-color: var(--error-red);
+  }
+  
+  input:valid {
+    border-color: var(--success-green);
+  }
+  
+  /* Labels */
+  label {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  /* Listas corporativas */
+  ul, ol {
+    background: var(--bg-primary);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  li {
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    background: var(--bg-tertiary);
+    border-left: 4px solid var(--primary-blue);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  
+  li:hover {
+    background: var(--bg-secondary);
+    border-left-color: var(--primary-dark);
+    transform: translateX(4px);
+  }
+  
+  /* Tablas corporativas */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    margin: 1rem 0;
+  }
+  
+  th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+  }
+  
+  th {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+  }
+  
+  tr:hover {
+    background: var(--bg-secondary);
+  }
+  
+  tr:last-child td {
+    border-bottom: none;
+  }
+  
+  /* Cards corporativas */
+  div.card {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    transition: all 0.2s ease;
+    margin: 1rem 0;
+  }
+  
+  div.card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    border-color: var(--primary-blue);
+  }
+  
+  /* Navegación corporativa */
+  nav {
+    background: var(--bg-primary);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  nav a {
+    margin: 0 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  
+  nav a:hover {
+    background: var(--bg-tertiary);
+    color: var(--primary-dark);
+  }
+  
+  nav a.active {
+    background: var(--primary-blue);
+    color: var(--text-white);
+  }
+  
+  /* Secciones */
+  section {
+    background: var(--bg-primary);
+    margin: 2rem 0;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+  }
+  
+  /* Header corporativo */
+  header {
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-dark));
+    color: var(--text-white);
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  
+  header h1 {
+    color: var(--text-white);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 1rem;
+  }
+  
+  /* Footer corporativo */
+  footer {
+    background: var(--bg-dark);
+    color: var(--text-white);
+    padding: 2rem;
+    text-align: center;
+    border-top: 4px solid var(--primary-blue);
+  }
+  
+  footer a {
+    color: var(--text-white);
+  }
+  
+  footer a:hover {
+    color: var(--primary-light);
+  }
+  
+  /* Aside/Sidebar */
+  aside {
+    background: var(--bg-primary);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--info-cyan);
+    box-shadow: var(--shadow-sm);
+    margin: 1rem 0;
+  }
+  
+  /* Artículos */
+  article {
+    background: var(--bg-primary);
+    padding: 2rem;
+    margin: 1.5rem 0;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+  }
+  
+  /* Citas corporativas */
+  blockquote {
+    background: var(--bg-tertiary);
+    border-left: 4px solid var(--primary-blue);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    border-radius: 0 8px 8px 0;
+    color: var(--text-secondary);
+  }
+  
+  blockquote::before {
+    content: '"';
+    font-size: 3rem;
+    color: var(--primary-blue);
+    opacity: 0.3;
+    line-height: 1;
+  }
+  
+  /* Código */
+  code, pre {
+    background: var(--bg-dark);
+    color: var(--text-white);
+    padding: 1rem;
+    border-radius: 6px;
+    font-family: 'Fira Code', 'Monaco', monospace;
+    border: 1px solid var(--border-medium);
+  }
+  
+  code {
+    padding: 0.25rem 0.5rem;
+    background: var(--bg-tertiary);
+    color: var(--error-red);
+    font-size: 0.875rem;
+  }
+  
+  /* Elementos multimedia */
+  img, video {
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s ease;
+    max-width: 100%;
+    height: auto;
+  }
+  
+  img:hover, video:hover {
+    box-shadow: var(--shadow-lg);
+    transform: scale(1.02);
+  }
+  
+  /* Progress bar corporativo */
+  progress {
+    width: 100%;
+    height: 12px;
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    border: none;
+    overflow: hidden;
+  }
+  
+  progress::-webkit-progress-bar {
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+  }
+  
+  progress::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--primary-blue), var(--primary-light));
+    border-radius: 6px;
+  }
+  
+  /* Badges/Tags */
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--primary-blue);
+    color: var(--text-white);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .badge.success { background: var(--success-green); }
+  .badge.warning { background: var(--warning-orange); }
+  .badge.error { background: var(--error-red); }
+  .badge.info { background: var(--info-cyan); }
+  
+  /* Alerts corporativos */
+  .alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    border-left: 4px solid;
+    font-weight: 500;
+  }
+  
+  .alert.info {
+    background: rgba(8, 145, 178, 0.1);
+    border-color: var(--info-cyan);
+    color: var(--info-cyan);
+  }
+  
+  .alert.success {
+    background: rgba(5, 150, 105, 0.1);
+    border-color: var(--success-green);
+    color: var(--success-green);
+  }
+  
+  .alert.warning {
+    background: rgba(217, 119, 6, 0.1);
+    border-color: var(--warning-orange);
+    color: var(--warning-orange);
+  }
+  
+  .alert.error {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: var(--error-red);
+    color: var(--error-red);
+  }
+  
+  /* Fieldset corporativo */
+  fieldset {
+    border: 2px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    background: var(--bg-primary);
+  }
+  
+  legend {
+    color: var(--primary-blue);
+    font-weight: 600;
+    padding: 0 1rem;
+    background: var(--bg-primary);
+  }
+  
+  /* Time element */
+  time {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    background: var(--bg-tertiary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Fira Code', monospace;
+  }
