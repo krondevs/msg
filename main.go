@@ -3,9 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
-	"runtime"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -45,25 +43,6 @@ func main() {
 	})
 	r.GET("/entrega", func(c *gin.Context) {
 		c.HTML(200, "entrega.html", nil)
-	})
-	r.GET("/dash", func(ctx *gin.Context) {
-		hash := ctx.Param("hash")
-		dat, _ := AssocSecure("SELECT * FROM users WHERE sesion = ?", hash)
-		if len(dat) < 1 {
-			ctx.Redirect(http.StatusFound, "/")
-			return
-		}
-		jwt, err := GenerateJWT(dat[0]["uuid"].(string), SETTINGS["jwt"].(string), 10)
-		if err != nil {
-			ctx.Redirect(http.StatusFound, "/")
-			return
-		}
-		ctx.HTML(200, "index.html", gin.H{
-			"Hash":      hash,
-			"Username":  dat[0]["username"].(string),
-			"Timestamp": time.Now().Unix(),
-			"Jwt":       jwt,
-		})
 	})
 
 	r.POST("/login", login)
@@ -112,20 +91,6 @@ func main() {
 func fileExists(filename string) bool {
 	_, err := os.Stat(filename)
 	return !os.IsNotExist(err)
-}
-
-func executeBadger() {
-	if runtime.GOOS == "windows" {
-		if !fileExists("lmdb_server.exe") {
-			return
-		}
-		runnnnn("./lmdb_server.exe")
-	} else {
-		if !fileExists("lmdb_server") {
-			return
-		}
-		runnnnn("./lmdb_server")
-	}
 }
 
 func showMovsMat(ctx *gin.Context) {
