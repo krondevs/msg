@@ -1,10 +1,10 @@
 {
-    "database":"database.db",
     "port":"5000",
-    "jwt":"4f1a9c3e8b2d7e5b0a6c4f2d9e7b3a1c5f8d0e4b9a6c2d7e3f1b5a8c0e9d4f7",
+    "jwt":"tIC5goAjgaDStKcN6j9ogfl5Vdli2uCd",
     "tor":false,
     "torport":"9050",
     "dbhost":"http://127.0.0.1:3308/v1/data",
     "dbkey":"gorms",
-    "dbname":"alexanderdb"
+    "dbname":"msg.db",
+    "duration":72
 } 

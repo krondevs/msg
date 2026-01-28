@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/static/css/bootstrap.min.css">
+<script src="/static/js/jquery-3.6.3.min.js"></script>
+<link href="/static/css/style.css" rel="stylesheet">
 <title>Acceso al Chat Profesional</title>
 <style>
 :root{
@@ -175,106 +178,121 @@ body{
         <form class="form" id="loginForm">
             <div class="form-row">
                 <label>Correo o Apodo</label>
-                <input class="input" type="text" placeholder="correo@ejemplo.com">
+                <input class="input" name="apodo" type="text" placeholder="correo@ejemplo.com">
             </div>
             <div class="form-row">
                 <label>Contraseña</label>
-                <input class="input" type="password" placeholder="••••••••">
+                <input class="input" name="password" type="password" placeholder="••••••••">
             </div>
-            <button class="btn" type="button">Entrar</button>
+            <button class="btn" type="button" onclick="login()">Entrar</button>
             <div class="helper">
                 Acceso para grupos profesionales por país, estado y ciudad.
             </div>
         </form>
 
-        <form class="form hidden" id="registerForm">
-            <div class="grid-2">
-                <div class="form-row">
-                    <label>Nombre</label>
-                    <input class="input" type="text" placeholder="Nombre">
-                </div>
-                <div class="form-row">
-                    <label>Apellido</label>
-                    <input class="input" type="text" placeholder="Apellido">
-                </div>
-                <div class="form-row">
-                    <label>Apodo</label>
-                    <input class="input" type="text" placeholder="usuario123">
-                </div>
-                <div class="form-row">
-                    <label>Correo</label>
-                    <input class="input" type="email" placeholder="correo@ejemplo.com">
-                </div>
-                <div class="form-row">
-                    <label>Contraseña</label>
-                    <input class="input" type="password" placeholder="••••••••">
-                </div>
-                <div class="form-row">
-                    <label>Teléfono</label>
-                    <input class="input" type="tel" placeholder="555-0000">
-                </div>
-            </div>
+<form class="form hidden" id="registerForm">
+  <div class="grid-2">
 
-            <div class="grid-2">
-                <div class="form-row">
-                    <label>Profesión u Oficio</label>
-                    <select class="select">
-                        <option>Enfermería</option>
-                        <option>Medicina</option>
-                        <option>Psicología</option>
-                        <option>Fisioterapia</option>
-                        <option>Odontología</option>
-                        <option>Ingeniería</option>
-                        <option>Docencia</option>
-                        <option>Electricista</option>
-                        <option>Carpintería</option>
-                        <option>Plomería</option>
-                        <option>Diseño gráfico</option>
-                        <option>Otro</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label>Especialidad</label>
-                    <input class="input" type="text" placeholder="Pediatría, UI/UX, etc">
-                </div>
-            </div>
+    <!-- ---------- Datos personales ---------- -->
+    <div class="form-row">
+      <label>Nombre</label>
+      <input class="input" type="text" placeholder="Nombre" name="nombre">
+    </div>
 
-            <div class="grid-2">
-                <div class="form-row">
-                    <label>País</label>
-                    <select class="select">
-                        <option>Venezuela</option>
-                        <option>Colombia</option>
-                        <option>Perú</option>
-                        <option>México</option>
-                        <option>Argentina</option>
-                        <option>Chile</option>
-                        <option>España</option>
-                        <option>Otro</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <label>Estado / Provincia</label>
-                    <input class="input" type="text" placeholder="Lara, Bogotá, Lima">
-                </div>
-                <div class="form-row">
-                    <label>Ciudad</label>
-                    <input class="input" type="text" placeholder="Barquisimeto">
-                </div>
-                <div class="form-row">
-                    <label>Dirección</label>
-                    <input class="input" type="text" placeholder="Calle, número, zona">
-                </div>
-            </div>
+    <div class="form-row">
+      <label>Apellido</label>
+      <input class="input" type="text" placeholder="Apellido" name="apellido">
+    </div>
 
-            <button class="btn" type="button">Crear cuenta</button>
-            <div class="helper">
-                Al registrarte serás asociado al grupo de tu profesión y ciudad.
-            </div>
-        </form>
+    <div class="form-row">
+      <label>Numero cedula o Documento</label>
+      <input class="input" type="text" placeholder="123456789" name="cedula">
+    </div>
+
+    <div class="form-row">
+      <label>Apodo</label>
+      <input class="input" type="text" placeholder="usuario123" name="apodo">
+    </div>
+
+    <div class="form-row">
+      <label>Correo</label>
+      <input class="input" type="email" placeholder="correo@ejemplo.com" name="correo">
+    </div>
+
+    <div class="form-row">
+      <label>Contraseña</label>
+      <input class="input" type="password" placeholder="••••••••" name="password">
+    </div>
+
+    <div class="form-row">
+      <label>Teléfono</label>
+      <input class="input" type="tel" placeholder="555-0000" name="telefono">
+    </div>
+
+
+    <!-- ---------- Dirección ---------- -->
+    <div class="form-row">
+      <label>País</label>
+      <select class="select" name="pais">
+        <option value="Venezuela">Venezuela</option>
+        <option value="Colombia">Colombia</option>
+        <option value="Perú">Perú</option>
+        <option value="México">México</option>
+        <option value="Argentina">Argentina</option>
+        <option value="Chile">Chile</option>
+        <option value="España">España</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Estado / Provincia</label>
+      <input class="input" type="text" placeholder="Lara, Bogotá, Lima" name="estado">
+    </div>
+
+    <div class="form-row">
+      <label>Ciudad</label>
+      <input class="input" type="text" placeholder="Barquisimeto" name="ciudad">
+    </div>
+
+    <div class="form-row">
+      <label>Dirección</label>
+      <input class="input" type="text" placeholder="Calle, número, zona" name="direccion">
+    </div>
+
+
+    <!-- ---------- Archivos ---------- -->
+    <div class="form-row">
+      <label>Foto de perfil</label>
+      <input class="input" type="file" name="foto_perfil">
+    </div>
+
+    <div class="form-row">
+      <label>Foto Selfie Con Documento</label>
+      <input class="input" type="file" name="selfie_doc">
+    </div>
+
+    <div class="form-row">
+      <label>Foto Cedula o Documento Identidad</label>
+      <input class="input" type="file" name="foto_documento">
+    </div>
+
+    <div class="form-row">
+      <label>Imagen, Foto o Pdf Recibo de Servicio</label>
+      <input class="input" type="file" name="recibo_servicio">
+    </div>
+  </div>
+
+  <button class="btn" type="button">Crear cuenta</button>
+  <div class="helper">
+    Al registrarte podrás crear tu grupo de profesionales.
+  </div>
+</form>
+
     </div>
 </div>
-
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/jqueryx.js"></script>
 <script>
 const tabs = document.querySelectorAll(".tab");
 const loginForm = document.getElementById("loginForm");
@@ -289,6 +307,40 @@ tabs.forEach((tab) => {
         registerForm.classList.toggle("hidden", isLogin);
     });
 });
+
+const JWT = localStorage.getItem("JWT");
+
+if (JWT != null){
+    location.replace("/app");
+}
+
+function login(){
+    let datos = objetizeForm("loginForm");
+    datos.password += "";
+    datos = JSON.stringify(datos);
+    jsonRequest(datos, "/signin", "", (data, err)=>{
+        if(err != null){
+           showNotification(err.message, "danger");
+           return
+        }
+        showNotification(data.message, data.status);
+        localStorage.setItem("JWT", data.data);
+        setTimeout(()=>{
+            location.replace("/app");
+        }, 1500);
+    });
+}
+
+
+function sendFormRequest(endpoint, formId){
+        let jwt = sessionStorage.getItem("JWT");
+        let datos = objetizeForm(formId);
+        console.log(datos);
+        jsonRequest(JSON.stringify(datos), "/api/"+endpoint, jwt, (data)=>{
+            showNotification(data.message, data.status);
+        });
+}
+
 </script>
 </body>
 </html>

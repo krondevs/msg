@@ -3,7 +3,11 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
+	crand "crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -77,7 +81,7 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			c.JSON(401, gin.H{"status": "error", "message": "Token requerido", "data": "invalid token"})
+			c.JSON(401, gin.H{"status": "error", "message": "token required", "data": "invalid token"})
 			c.Abort()
 			return
 		}
@@ -85,7 +89,8 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		userUUID, err := ValidateJWT(tokenString, secret)
 		if err != nil {
-			c.JSON(401, gin.H{"status": "error", "message": "Token requerido", "data": "invalid token"})
+			fmt.Println(err)
+			c.JSON(401, gin.H{"status": "error", "message": "token expired", "data": "invalid token"})
 			c.Abort()
 			return
 		}
@@ -153,6 +158,70 @@ func GenerateJWT(userUUID, secret string, expirationHours int) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func Encrypt(plaintext string, key string) (string, error) {
+	keyBytes := []byte(key)
+	if !isValidAESKeyLen(len(keyBytes)) {
+		return "", fmt.Errorf("invalid key length: %d", len(keyBytes))
+	}
+
+	block, err := aes.NewCipher(keyBytes)
+	if err != nil {
+		return "", err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := io.ReadFull(crand.Reader, nonce); err != nil {
+		return "", err
+	}
+
+	ciphertext := gcm.Seal(nonce, nonce, []byte(plaintext), nil)
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
+}
+
+func Decrypt(ciphertext string, key string) (string, error) {
+	keyBytes := []byte(key)
+	if !isValidAESKeyLen(len(keyBytes)) {
+		return "", fmt.Errorf("invalid key length: %d", len(keyBytes))
+	}
+
+	raw, err := base64.StdEncoding.DecodeString(ciphertext)
+	if err != nil {
+		return "", err
+	}
+
+	block, err := aes.NewCipher(keyBytes)
+	if err != nil {
+		return "", err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	nonceSize := gcm.NonceSize()
+	if len(raw) < nonceSize {
+		return "", fmt.Errorf("ciphertext too short")
+	}
+
+	nonce, data := raw[:nonceSize], raw[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, data, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plaintext), nil
+}
+
+func isValidAESKeyLen(n int) bool {
+	return n == 16 || n == 24 || n == 32
 }
 
 func StringToHexa(s string) string {
@@ -624,29 +693,19 @@ func Requests(method, url, contentType, bearerToken string, payload []byte, tor 
 	return body, 200, nil
 }
 
-func QueryBadger(queryType, key, configFile string, values any) (Resss, error) {
+func QueryBadger(queryType, key string, values any) (Resss, error) {
 	if len(key) < 1 || key == "" {
-		//fmt.Println(values...)
 		return Resss{}, fmt.Errorf("invalid key to make requests")
 	}
 	var datos = Resss{}
-	conf, err := os.ReadFile(configFile)
-	if err != nil {
-		return Resss{}, err
-	}
-	var confs map[string]any
-	err = json.Unmarshal(conf, &confs)
-	if err != nil {
-		return Resss{}, err
-	}
 	envio := RequestLmdb{}
-	envio.Database = confs["dbname"].(string)
+	envio.Database = SETTINGS["dbname"].(string)
 	envio.KeyStore = key
 	envio.Values = values
 	envio.Query = queryType
 	envio.MasterKey = ""
 	jsonData, _ := json.Marshal(envio)
-	resp, ss, err := Requests("POST", confs["dbhost"].(string), "application/json", confs["dbkey"].(string), jsonData, confs["tor"].(bool), confs["torport"].(string))
+	resp, ss, err := Requests("POST", SETTINGS["dbhost"].(string), "application/json", SETTINGS["dbkey"].(string), jsonData, SETTINGS["tor"].(bool), SETTINGS["torport"].(string))
 	if ss == 404 {
 		datos.StatusCode = 404
 		return datos, nil

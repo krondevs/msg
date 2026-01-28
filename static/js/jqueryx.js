@@ -1,17 +1,17 @@
 /**
  * jqueryx - Librería de extensión para jQuery
- * 
+ *
  * @library jqueryx
  * @version 1.0.0
  * @author Jober Urizare
  * @copyright Apix Technology
- * 
+ *
  * @description
- * jqueryx es una librería de extensión para jQuery que proporciona 
- * herramientas avanzadas para desarrollo web, inspirada en la filosofía 
- * de HTMX, con funcionalidades para manejo de solicitudes AJAX, 
+ * jqueryx es una librería de extensión para jQuery que proporciona
+ * herramientas avanzadas para desarrollo web, inspirada en la filosofía
+ * de HTMX, con funcionalidades para manejo de solicitudes AJAX,
  * notificaciones, modales, gráficos y utilidades de interfaz.
- * 
+ *
  * @features
  * - Gestión de solicitudes AJAX simplificadas
  * - Componentes de interfaz dinámicos (modales, notificaciones)
@@ -20,12 +20,12 @@
  * - Manejo de overlays y spinners de carga
  * - Serialización de formularios
  * - Gestión de colores dinámicos
- * 
+ *
  * @dependencies
  * - jQuery (3.x o superior)
  * - Chart.js (para funciones de gráficos)
  * - QRCode.js (para generación de códigos QR)
- * 
+ *
  * @modules
  * - Modal Management
  * - Notification System
@@ -33,30 +33,30 @@
  * - Loading Overlay
  * - Charting
  * - QR Code Generation
- * 
+ *
  * @license MIT
- * 
+ *
  * @contact
  * - Email: apixtechnologyca@gmail.com
  * - Web: https://apixtech.github.io/index
- * 
+ *
  * @usage
  * // Ejemplos básicos de uso
- * 
+ *
  * // Mostrar notificación
  * showNotification('Operación exitosa', 'success');
- * 
+ *
  * // Abrir modal
  * openModal();
- * 
+ *
  * // Enviar solicitud AJAX
  * jsonRequest(datos, '/ruta', (respuesta, error) => { ... });
- * 
+ *
  * @roadmap
  * - Mejora de rendimiento
  * - Más componentes de interfaz
  * - Soporte para más tipos de gráficos
- * 
+ *
  * @notes
  * - Diseñada para ser ligera y eficiente
  * - Fácil integración con proyectos existentes
@@ -102,22 +102,22 @@ window.onclick = function(event) {
 }*/
 
 function serializeForm(formId) {
-  const arr = $('#' + formId).serializeArray();
+  const arr = $("#" + formId).serializeArray();
   console.log(arr);
   let obj = {};
-  for(let item of arr){
+  for (let item of arr) {
     obj[item.name] = item.value;
   }
   return JSON.stringify(obj);
 }
 
 function objetizeForm(formId) {
-  const arr = $('#' + formId).serializeArray();
+  const arr = $("#" + formId).serializeArray();
   console.log(arr);
   let obj = {};
-  for(let item of arr){
+  for (let item of arr) {
     item.value = item.value.trim();
-    if (item.value !== "" && !isNaN(item.value)){
+    if (item.value !== "" && !isNaN(item.value)) {
       item.value = parseFloat(item.value);
     }
     obj[item.name] = item.value;
@@ -165,7 +165,7 @@ function jsonRequest(jsonDataSerialized, route, bearerToken, callback) {
     contentType: "application/json",
     data: jsonDataSerialized,
     headers: {
-      Authorization: `Bearer ${bearerToken}`
+      Authorization: `Bearer ${bearerToken}`,
     },
     success: (data) => {
       restablecerPantalla();
@@ -185,13 +185,11 @@ function jsonRequest(jsonDataSerialized, route, bearerToken, callback) {
         }
       }
 
-      callback(null, json); 
+      callback(null, json);
       //callback(null, xhr);
-    }
+    },
   });
 }
-
-
 
 function jsonRequestNoDim(jsonDataSerialized, route, bearerToken, callback) {
   $.ajax({
@@ -199,14 +197,14 @@ function jsonRequestNoDim(jsonDataSerialized, route, bearerToken, callback) {
     url: route,
     contentType: "application/json",
     data: jsonDataSerialized,
-     headers: {
-      Authorization: `Bearer ${bearerToken}`
+    headers: {
+      Authorization: `Bearer ${bearerToken}`,
     },
     success: (data) => {
       callback(data, null);
     },
     error: function (xhr, status, error) {
-       console.error(xhr, status, error);
+      console.error(xhr, status, error);
       let json;
       if (xhr.responseJSON) {
         json = xhr.responseJSON;
@@ -780,7 +778,14 @@ function ensureModalContainer() {
  *   'Error al guardar usuario'
  * )
  */
-function sendUrlEncodedRequest(method, route, formUrlEncodedData, successResponse, successMessage, unsuccessMessage) {
+function sendUrlEncodedRequest(
+  method,
+  route,
+  formUrlEncodedData,
+  successResponse,
+  successMessage,
+  unsuccessMessage,
+) {
   oscurecerPantalla();
   $.ajax({
     type: method,
@@ -907,8 +912,13 @@ function sendMultiPartData(method, route, formId, successResponse, successMessag
 }
   */
 
-
-function sendUrlEncodedp(method, route, formUrlEncodedData, successResponse, successMessage) {
+function sendUrlEncodedp(
+  method,
+  route,
+  formUrlEncodedData,
+  successResponse,
+  successMessage,
+) {
   oscurecerPantalla();
   $.ajax({
     type: method,
@@ -968,7 +978,6 @@ function sendUrlEncodedp(method, route, formUrlEncodedData, successResponse, suc
     },
   });
 }
-
 
 /**
  * Carga contenido dinámicamente en un elemento objetivo mediante una solicitud AJAX
