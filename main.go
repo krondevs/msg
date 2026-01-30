@@ -650,10 +650,25 @@ func addNewGroup(ctx *gin.Context) {
 		ctx.JSON(500, gin.H{"status": "error", "message": err.Error(), "data": ""})
 		return
 	}
+	if len(chat.Description) > 500 {
+		ctx.JSON(400, gin.H{"status": "error", "message": "descripcion muy larga", "data": ""})
+		return
+	}
+	if len(chat.Specialty) > 100 {
+		ctx.JSON(400, gin.H{"status": "error", "message": "descripcion muy larga", "data": ""})
+		return
+	}
 	chat.Members = map[string]string{uuiduser.(string): ""}
 	chat.DenuncedBy = map[string]string{}
 	chat.Owners = map[string]string{uuiduser.(string): ""}
-	PrintData(chat)
+	//PrintData(chat)
+	indices := []string{}
+	especialidad := normalizeString(strings.ToLower(strings.TrimSpace(chat.Specialty)))
+	descripcion := normalizeString(strings.ToLower(strings.TrimSpace(chat.Description)))
+	descripcion = especialidad + " " + descripcion
+	indices = Tokenize(descripcion)
+	//indices = strings.Fields(especialidad)
+	//indices = append(indices, strings.Fields(descripcion)...)
 	chat.City = strings.ToUpper(strings.TrimSpace(chat.City))
 	chat.Country = strings.ToUpper(strings.TrimSpace(chat.Country))
 	chat.Specialty = strings.ToUpper(strings.TrimSpace(chat.Specialty))
@@ -693,6 +708,23 @@ func addNewGroup(ctx *gin.Context) {
 	json.Unmarshal(dat.ResultByte, &user)
 	user.Chats["GROUP_"+chttr] = ""
 	UpdateUser(uuiduser.(string), user)
+	if len(indices) > 20 {
+		indices = indices[:20]
+	}
+	for _, i := range indices {
+		dat, _ := QueryBadger("SELECT", i, "")
+		indi := map[string]Chat{}
+		if dat.StatusCode == 404 {
+			indi = map[string]Chat{
+				"GROUP_" + chttr: chat,
+			}
+			QueryBadger("INSERT", i, indi)
+			continue
+		}
+		json.Unmarshal(dat.ResultByte, &indi)
+		indi["GROUP_"+chttr] = chat
+		QueryBadger("UPDATE", i, indi)
+	}
 	ctx.JSON(200, gin.H{"status": "error", "message": "ok", "data": ""})
 }
 

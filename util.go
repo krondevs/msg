@@ -19,9 +19,11 @@ import (
 	"net/url"
 	"os"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/fatih/color"
 	"github.com/gin-contrib/cors"
@@ -29,6 +31,34 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var nowords = map[string]struct{}{
+	"la": {}, "le": {}, "el": {}, "los": {}, "las": {},
+	"de": {}, "en": {}, "por": {}, "un": {}, "que": {},
+	"a": {}, "ante": {}, "bajo": {}, "cabe": {}, "con": {},
+	"contra": {}, "dentro": {}, "desde": {}, "entre": {}, "hacia": {},
+	"hasta": {}, "para": {}, "segun": {}, "sobre": {}, "tras": {},
+	"versus": {}, "al": {}, "del": {}, "lo": {}, "mi": {}, "mis": {},
+	"tu": {}, "tus": {}, "su": {}, "sus": {}, "este": {}, "esta": {},
+	"estos": {}, "estas": {}, "ese": {}, "esa": {}, "esos": {}, "esas": {},
+	"nuestro": {}, "nuestra": {}, "vuestro": {}, "vuestra": {}, "todos": {},
+	"todas": {}, "uno": {}, "una": {}, "unos": {}, "unas": {}, "como": {},
+	"cuando": {}, "donde": {}, "porque": {}, "siempre": {}, "nunca": {},
+	"aqui": {}, "alli": {}, "ya": {}, "todavia": {}, "solo": {}, "solamente": {},
+	"casi": {}, "apenas": {}, "tambien": {}, "ademas": {}, "sin": {},
+	"antes": {}, "despues": {}, "durante": {}, "encima": {}, "debajo": {},
+	"traves": {}, "junto": {}, "cuanto": {}, "y": {}, "o": {},
+	"e": {}, "i": {}, "u": {},
+	"A": {}, "E": {}, "I": {}, "O": {}, "U": {},
+	"b": {}, "c": {}, "d": {}, "f": {}, "g": {}, "h": {}, "j": {}, "k": {}, "l": {}, "m": {},
+	"n": {}, "p": {}, "q": {}, "r": {}, "s": {}, "t": {}, "v": {}, "w": {}, "x": {}, "z": {},
+	"B": {}, "C": {}, "D": {}, "F": {}, "G": {}, "H": {}, "J": {}, "K": {}, "L": {}, "M": {},
+	"N": {}, "P": {}, "Q": {}, "R": {}, "S": {}, "T": {}, "V": {}, "W": {}, "X": {}, "Y": {}, "Z": {},
+	"0": {}, "1": {}, "2": {}, "3": {}, "4": {},
+	"5": {}, "6": {}, "7": {}, "8": {}, "9": {},
+}
+
+var wordRe = regexp.MustCompile(`[^a-zA-Z0-9]+`)
 
 func HashPassword(password string) (string, error) {
 	// Genera el hash con un costo de 12 (recomendado para producción)
@@ -114,6 +144,119 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 		c.Set("uuid", userUUID)
 		c.Next()
 	}
+}
+
+func ShuffleStrings(slice []string) {
+	for i := len(slice) - 1; i > 0; i-- {
+		j := rand.Intn(i + 1)
+		slice[i], slice[j] = slice[j], slice[i]
+	}
+}
+
+func Tokenize(s string) []string {
+	// 1. Reemplazar cualquier carácter no alfanumérico por un espacio.
+	s = wordRe.ReplaceAllString(s, " ")
+
+	// 2. Normalizar a minúsculas y eliminar espacios iniciales/finales.
+	pp := strings.ToLower(strings.TrimSpace(s))
+
+	// 3. Dividir en tokens (palabras).
+	rawTokens := strings.Fields(pp)
+
+	// 4. Filtrar stop‑words y construir el slice resultante.
+	newTT := make([]string, 0, len(rawTokens))
+	for _, tok := range rawTokens {
+		if _, isStop := nowords[tok]; !isStop {
+			newTT = append(newTT, tok)
+		}
+	}
+	return newTT
+}
+
+func normalizeString(s string) string {
+	var result strings.Builder
+
+	for _, r := range s {
+		switch r {
+		case 'á', 'à', 'â', 'ä', 'ã', 'å', 'æ':
+			result.WriteRune('a')
+		case 'Á', 'À', 'Â', 'Ä', 'Ã', 'Å', 'Æ':
+			result.WriteRune('A')
+		case 'é', 'è', 'ê', 'ë', 'ẽ', 'ę', 'ė':
+			result.WriteRune('e')
+		case 'É', 'È', 'Ê', 'Ë', 'Ẽ', 'Ę', 'Ė':
+			result.WriteRune('E')
+		case 'í', 'ì', 'î', 'ï', 'ĩ', 'į', 'ı':
+			result.WriteRune('i')
+		case 'Í', 'Ì', 'Î', 'Ï', 'Ĩ', 'Į', 'I':
+			result.WriteRune('I')
+		case 'ó', 'ò', 'ô', 'ö', 'õ', 'ø', 'œ':
+			result.WriteRune('o')
+		case 'Ó', 'Ò', 'Ô', 'Ö', 'Õ', 'Ø', 'Œ':
+			result.WriteRune('O')
+		case 'ú', 'ù', 'û', 'ü', 'ũ', 'ų', 'ū':
+			result.WriteRune('u')
+		case 'Ú', 'Ù', 'Û', 'Ü', 'Ũ', 'Ų', 'Ū':
+			result.WriteRune('U')
+		case 'ç', 'ć', 'č':
+			result.WriteRune('c')
+		case 'Ç', 'Ć', 'Č':
+			result.WriteRune('C')
+		case 'ñ', 'ń', 'ņ', 'ň':
+			result.WriteRune('n')
+		case 'Ñ', 'Ń', 'Ņ', 'Ň':
+			result.WriteRune('N')
+		case 'ý', 'ỳ', 'ŷ', 'ÿ', 'ỹ', 'ȳ':
+			result.WriteRune('y')
+		case 'Ý', 'Ỳ', 'Ŷ', 'Ÿ', 'Ỹ', 'Ȳ':
+			result.WriteRune('Y')
+		case 'ß':
+			result.WriteRune('s')
+		case 'Đ', 'Ð', 'Ď':
+			result.WriteRune('D')
+		case 'ł', 'ľ', 'ĺ':
+			result.WriteRune('l')
+		case 'Ł', 'Ľ', 'Ĺ':
+			result.WriteRune('L')
+		case 'ř', 'ŕ', 'ŗ':
+			result.WriteRune('r')
+		case 'Ř', 'Ŕ', 'Ŗ':
+			result.WriteRune('R')
+		case 'š', 'ś', 'ş':
+			result.WriteRune('s')
+		case 'Š', 'Ś', 'Ş':
+			result.WriteRune('S')
+		case 'ž', 'ź', 'ż':
+			result.WriteRune('z')
+		case 'Ž', 'Ź', 'Ż':
+			result.WriteRune('Z')
+		case 'þ', 'ŧ':
+			result.WriteRune('t')
+		case 'Þ', 'Ŧ':
+			result.WriteRune('T')
+		case 'ħ':
+			result.WriteRune('h')
+		case 'Ħ':
+			result.WriteRune('H')
+		default:
+			if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) {
+				result.WriteRune(r)
+			} else {
+				// Reemplazar otros caracteres especiales por guión o espacio
+				if r == '-' || r == '_' || r == '.' {
+					result.WriteRune(r)
+				} else {
+					result.WriteRune(' ')
+				}
+			}
+		}
+	}
+	normalized := strings.TrimSpace(result.String())
+	for strings.Contains(normalized, "  ") {
+		normalized = strings.ReplaceAll(normalized, "  ", " ")
+	}
+
+	return normalized
 }
 
 func ValidateJWT(tokenString, secret string) (string, error) {
