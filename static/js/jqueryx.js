@@ -241,6 +241,75 @@ function sendMultiPartData(method, route, formId, callback) {
   });
 }
 
+function sendMultiPartData2(method, route, bearerToken, formId, callback) {
+  //oscurecerPantalla();
+  let formData = new FormData(document.getElementById(formId));
+  $.ajax({
+    type: method,
+    url: route,
+    data: formData,
+    processData: false,
+    contentType: false,
+    headers: {
+      Authorization: `Bearer ${bearerToken}`,
+    },
+    success: (data) => {
+      //restablecerPantalla();
+      callback(data, null);
+    },
+    error: (xhr, status, error) => {
+      console.error(xhr, status, error);
+      //restablecerPantalla();
+      callback(null, error);
+    },
+  });
+}
+
+function copy(text) {
+  // Verificar si la API Clipboard está disponible (navegadores modernos)
+  if (navigator.clipboard && window.isSecureContext) {
+    // Usar la nueva API Clipboard
+    navigator.clipboard
+      .writeText(text)
+      .then(function () {
+        console.log("Texto copiado al portapapeles: " + text);
+      })
+      .catch(function (err) {
+        console.error("Error al copiar: ", err);
+      });
+  } else {
+    // Fallback para navegadores antiguos
+    try {
+      // Crear un elemento temporal de texto
+      var textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      textarea.style.top = "-9999px";
+      document.body.appendChild(textarea);
+
+      // Seleccionar el texto
+      textarea.select();
+      textarea.setSelectionRange(0, text.length);
+
+      // Intentar copiar
+      var successful = document.execCommand("copy");
+
+      // Eliminar el elemento temporal
+      document.body.removeChild(textarea);
+
+      if (successful) {
+        console.log("Texto copiado al portapapeles: " + text);
+      } else {
+        console.error("Error al copiar el texto");
+      }
+    } catch (err) {
+      console.error("Error al copiar: ", err);
+    }
+  }
+  showNotification("Enlace copiado", "success");
+}
+
 function sendForm(method, route, formId, callback) {
   oscurecerPantalla();
   let formData = new FormData(document.getElementById(formId));

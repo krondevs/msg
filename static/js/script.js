@@ -24,6 +24,8 @@ function restoreChat() {
 }
 
 function createGroup() {
+  closeSidebar();
+  CURRENT = "";
   $(".chat-input").hide();
   $("#chatMessages").html(`
         <form id="forma4">
@@ -120,26 +122,364 @@ function addNewGroup() {
   });
 }
 
+function sendMessage() {
+  let jwt = localStorage.getItem("JWT");
+  let msg = $("#msg").val();
+  if (msg != "" && CURRENT != "") {
+    let datos = {
+      group: CURRENT,
+      msg: msg,
+    };
+    jsonRequestNoDim(
+      JSON.stringify(datos),
+      "/api/sendMessage",
+      jwt,
+      (data, err) => {
+        if (err != null) {
+          showNotification(data.message, "danger");
+          return;
+        }
+        $("#msg").val("");
+        loadGroupChat2();
+        scrollToBottom(1000);
+        $("#msg").focus();
+      },
+    );
+  }
+}
+
+var CURRENT = "";
+var USERNAME = "";
+var CONT = 0;
+
 function getGroupsList() {
   let jwt = localStorage.getItem("JWT");
   jsonRequestNoDim(null, "/api/getGroupsList", jwt, (data, err) => {
     if (err != null) {
       showNotification(data.message, "danger");
-      return
+      return;
     }
-    let text = $("#groups").html();
+    let text = `
+      <li class="group-item" onclick="createGroup()">
+          <div class="group-avatar">++</div>
+          <div class="group-info">
+            <span class="group-name">CREAR NUEVO GRUPO</span>
+          </div>
+        </li>
+      `;
+    USERNAME = data.me;
     for (let i in data.data) {
+      let unread = "";
+      console.log(data.data[i].members[USERNAME]);
+      if (data.data[i].members[USERNAME] == "UNREAD") {
+        unread = `<span class="badge badge-warning">Msgs</span>`;
+      }
       text += `
-            <li class="group-item">
-            <div class="group-avatar">${data.data[i].avatar}</div>
-            <div class="group-info">
-                <span class="group-name">${data.data[i].name}</span>
-                <span class="group-meta">${data.data[i].cant}</span>
-            </div>
-            </li>
-           `;
-      $("#groups").html(text);
+        <li class="group-item" onclick="loadGroupChat('${i}')">
+          <div class="group-avatar">GRP</div>
+          <div class="group-info">
+            <span class="group-name">${data.data[i].name}</span>
+            ${unread}
+          </div>
+        </li>
+        `;
     }
+    $("#groups").html(text);
+  });
+}
+
+const BASEURL = "http://127.0.0.1:5000/app/";
+var WAIT = 0;
+
+function loadGroupChat(e) {
+  closeSidebar();
+  let jwt = localStorage.getItem("JWT");
+  CURRENT = e;
+  let datos = {
+    msgs: e,
+    max: 300,
+  };
+  WAIT = 1;
+  $("#ginfo").html(`
+         <h2>${e}</h2>
+          <p>⏳ miembros</p>
+        `);
+  $("#menuBar").html("⏳ Info...");
+  $("#chatMessages").html(
+    `<span class="badge" style="font-size: 200px;">⏳</span>`,
+  );
+  jsonRequestNoDim(
+    JSON.stringify(datos),
+    "/api/loadGroupChat",
+    jwt,
+    (data, err) => {
+      if (err != null) {
+        showNotification(data.message, "danger");
+        return;
+      }
+      let text = "";
+      $("#chatMessages").html("");
+      USERNAME = data.me;
+      //console.log(data);
+      for (let i in data.data) {
+        //console.log(data.data[i]);
+        let unread = "✔";
+        if (data.data[i].from_user == data.me) {
+          if (data.data[i].resents == 1) {
+            unread = "✔✔";
+          }
+          text += `
+           <div class="message message-sent">
+            ${data.data[i].text}
+            <div class="message-status">${unread}</div>
+            </div>
+        `;
+        } else {
+          let editMember = data.data[i].apodo;
+          let editmsg = data.data[i].text;
+          if (data.datosGrupo.owner[data.me] !== undefined) {
+            editMember = `<a href="javascript:void(0)" onclick="editMember('${data.data[i].from_user}', '${editMember}')">${data.data[i].apodo}</a>`;
+            editmsg = `<a href="javascript:void(0)" onclick="editMsg('${data.data[i].id}')">${data.data[i].text}</a>`;
+          }
+          text += `
+         <div class="message message-received">
+            <div class="message-username">${editMember}</div>
+            ${editmsg}
+          </div>
+        `;
+        }
+      }
+      let lockd = `<button class="btn btn-warning" onclick="cerrarGrupo('${data.datosGrupo.id}')">Cerrar</button>`;
+      if (data.datosGrupo.is_blocked == true) {
+        lockd = `<button class="btn btn-primary" onclick="cerrarGrupo('${data.datosGrupo.id}')">Abrir</button>`;
+      }
+      let ttx = `
+      <a href="javascript:void(0)" onclick="copy('${BASEURL + data.datosGrupo.link}')"><small>Enlace</small></a>
+      ${lockd}
+      <button class="btn btn-danger">ELIMINAR</button>
+      `;
+      if (data.datosGrupo.link == "") {
+        ttx = `<button class="btn btn-danger" onclick="salirGrupo('${data.datosGrupo.id}')">SALIR DEL GRUPO</button>`;
+      }
+
+      if (
+        data.datosGrupo.locked == true ||
+        data.datosGrupo.is_blocked == true ||
+        data.datosGrupo.members[USERNAME] == "SUSPENDED"
+      ) {
+        $("#msg").prop("disabled", true);
+      } else {
+        $("#msg").prop("disabled", false);
+      }
+
+      $("#chatMessages").html(text);
+      $("#menuBar").html(ttx);
+      $("#ginfo").html(`
+         <h2>${data.datosGrupo.name}</h2>
+          <p>${Object.keys(data.datosGrupo.members).length} miembros</p>
+        `);
+      scrollToBottom(1000);
+      WAIT = 0;
+    },
+  );
+}
+
+function editMember(e, nombre) {
+  $("#datos").html(`
+    <p>Acciones sobre: ${nombre}</p>
+    <button type="button" class="btn btn-danger" onclick="expulsar('${e}')">Expulsar</button> <button type="button" class="btn" onclick="suspender('${e}')"><span class="badge badge-warning">Suspender</span> | <span class="badge badge-success">Activar</span></button>`);
+  openModal();
+}
+
+function editMsg(idmsg){
+  $("#datos").html(`
+    <button type="button" class="btn btn-danger" onclick="eliminarMsg('${idmsg}')">ELIMINAR</button>`);
+  openModal();
+}
+
+function salirGrupo(e){
+  let jwt = localStorage.getItem("JWT");
+  let datos = {
+    group: CURRENT
+  };
+  jsonRequest(JSON.stringify(datos), "/api/salirGrupo", jwt, (data, err) => {
+    if (err != null) {
+      console.log(err);
+      showNotification("error", "danger");
+      return;
+    }
+    showNotification("ok", "success");
+    CURRENT = "";
+    $("#chatMessages").html("");
+    $("#menuBar").html("");
+    $("#ginfo").html("");
+  });
+}
+
+function eliminarMsg(e){
+    let jwt = localStorage.getItem("JWT");
+  let datos = {
+    msg: e,
+    group: CURRENT
+  };
+  jsonRequest(JSON.stringify(datos), "/api/eliminarMsg", jwt, (data, err) => {
+    if (err != null) {
+      console.log(err);
+      showNotification(err.message, "danger");
+      return;
+    }
+    showNotification("Operacion exitosa", "success");
+    closeModal();
+    loadGroupChat2();
+  });
+}
+
+function suspender(e){
+   let jwt = localStorage.getItem("JWT");
+  let datos = {
+    user: e,
+    group: CURRENT
+  };
+  jsonRequest(JSON.stringify(datos), "/api/suspender", jwt, (data, err) => {
+    if (err != null) {
+      console.log(err);
+      showNotification(err.message, "danger");
+      return;
+    }
+    showNotification("Operacion exitosa", "success");
+    closeModal();
+    //loadGroupChat2();
+  });
+}
+
+function expulsar(e){
+  let jwt = localStorage.getItem("JWT");
+  let datos = {
+    user: e,
+    group: CURRENT
+  };
+  jsonRequest(JSON.stringify(datos), "/api/expulsar", jwt, (data, err) => {
+    if (err != null) {
+      console.log(err);
+      showNotification(err.message, "danger");
+      return;
+    }
+    showNotification("Operacion exitosa", "success");
+    closeModal();
+    //loadGroupChat2();
+  });
+}
+
+var CHATS = {};
+
+function loadGroupChat2() {
+  if (CURRENT == "") {
+    $("#ginfo").html("");
+    return;
+  }
+  if (WAIT == 1) {
+    return;
+  }
+  let jwt = localStorage.getItem("JWT");
+  let datos = {
+    msgs: CURRENT,
+    max: 300,
+  };
+  jsonRequestNoDim(
+    JSON.stringify(datos),
+    "/api/loadGroupChat",
+    jwt,
+    (data, err) => {
+      if (err != null) {
+        showNotification(data.message, "danger");
+        return;
+      }
+      let text = "";
+      //$("#chatMessages").html();
+      USERNAME = data.me;
+      //console.log(data);
+      let ctn = 0;
+      for (let i in data.data) {
+        ctn++;
+        //console.log(data.data[i]);
+        let unread = "✔";
+        if (data.data[i].from_user == data.me) {
+          if (data.data[i].resents == 1) {
+            unread = "✔✔";
+          }
+          text += `
+           <div class="message message-sent">
+            ${data.data[i].text}
+            <div class="message-status">${unread}</div>
+            </div>
+        `;
+        } else {
+          let editMember = data.data[i].apodo;
+          let editmsg = data.data[i].text;
+          if (data.datosGrupo.owner[data.me] !== undefined) {
+            editMember = `<a href="javascript:void(0)" onclick="editMember('${data.data[i].from_user}', '${editMember}')">${data.data[i].apodo}</a>`;
+            editmsg = `<a href="javascript:void(0)" onclick="editMsg('${data.data[i].id}')">${data.data[i].text}</a>`;
+          }
+          text += `
+         <div class="message message-received">
+            <div class="message-username">${editMember}</div>
+            ${editmsg}
+          </div>
+        `;
+        }
+      }
+
+      let lockd = `<button class="btn btn-warning" onclick="cerrarGrupo('${data.datosGrupo.id}')">Cerrar</button>`;
+      if (data.datosGrupo.is_blocked == true) {
+        lockd = `<button class="btn btn-primary" onclick="cerrarGrupo('${data.datosGrupo.id}')">Abrir</button>`;
+      }
+      let ttx = `
+      <a href="javascript:void(0)" onclick="copy('${BASEURL + data.datosGrupo.link}')"><small>Enlace</small></a>
+      ${lockd}
+      <button class="btn btn-danger">ELIMINAR</button>
+      `;
+      if (data.datosGrupo.link == "") {
+        ttx = `<button class="btn btn-danger" onclick="salirGrupo('${data.datosGrupo.id}')">SALIR DEL GRUPO</button>`;
+      }
+
+      if (
+        data.datosGrupo.locked == true ||
+        data.datosGrupo.is_blocked == true ||
+        data.datosGrupo.members[USERNAME] == "SUSPENDED"
+      ) {
+        $("#msg").prop("disabled", true);
+      } else {
+        $("#msg").prop("disabled", false);
+      }
+
+      $("#menuBar").html(ttx);
+      $("#ginfo").html(`
+         <h2>${data.datosGrupo.name}</h2>
+          <p>${Object.keys(data.datosGrupo.members).length} miembros</p>
+        `);
+      if (ctn != CONT) {
+        $("#chatMessages").html(text);
+        scrollToBottom(1000);
+        CONT = ctn;
+      }
+      console.log(CONT, ctn);
+    },
+  );
+}
+
+function cerrarGrupo(e) {
+  let jwt = localStorage.getItem("JWT");
+  let datos = {
+    group: e,
+  };
+  jsonRequest(JSON.stringify(datos), "/api/cerrarGrupo", jwt, (data, err) => {
+    if (err != null) {
+      console.log(err);
+      showNotification(err.message, "danger");
+      return;
+    }
+    showNotification("Operacion exitosa", "success");
+    //loadGroupChat2();
   });
 }
 
@@ -155,9 +495,6 @@ function validateSession() {
     }
   });
 }
-
-setInterval(validateSession, 5000);
-getGroupsList();
 
 let matchIndex = 0;
 let matches = [];
@@ -398,3 +735,8 @@ function scrollToBottom(duration = 300) {
 document.addEventListener("DOMContentLoaded", () => {
   scrollToBottom();
 });
+
+setInterval(validateSession, 5000);
+setInterval(loadGroupChat2, 1500);
+setInterval(getGroupsList, 3000);
+getGroupsList();

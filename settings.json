@@ -5,6 +5,6 @@
     "torport":"9050",
     "dbhost":"http://127.0.0.1:3308/v1/data",
     "dbkey":"gorms",
-    "dbname":"msg.db",
+    "dbname":"msg2",
     "duration":72
 } 

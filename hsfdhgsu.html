@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Group Administration Settings</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1fdb6a",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#112117",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
+    <!-- Top Navigation Bar -->
+    <div
+        class="sticky top-0 z-50 flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between border-b border-gray-200 dark:border-gray-800">
+        <div class="text-primary flex size-12 shrink-0 items-center cursor-pointer">
+            <span class="material-symbols-outlined text-[28px]">arrow_back_ios</span>
+        </div>
+        <h2
+            class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
+            Group Settings</h2>
+    </div>
+    <div class="max-w-md mx-auto pb-20">
+        <!-- Section: Permissions Header -->
+        <h3
+            class="text-gray-500 dark:text-[#95c6a9] text-xs font-bold leading-tight tracking-[0.05em] px-4 pb-2 pt-6 uppercase">
+            Permissions</h3>
+        <!-- List Item: Edit Group Info -->
+        <div
+            class="flex items-center gap-4 bg-white dark:bg-[#1c2e24] px-4 min-h-[72px] py-2 justify-between border-b border-gray-100 dark:border-gray-800/50">
+            <div class="flex flex-col justify-center">
+                <p class="text-slate-900 dark:text-white text-base font-medium leading-normal">Edit Group Info</p>
+                <p class="text-gray-500 dark:text-[#95c6a9] text-sm font-normal leading-normal">All participants</p>
+            </div>
+            <div class="shrink-0">
+                <label
+                    class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-[#254632] p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary">
+                    <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+                    <input checked="" class="invisible absolute" type="checkbox" />
+                </label>
+            </div>
+        </div>
+        <!-- List Item: Send Messages -->
+        <div
+            class="flex items-center gap-4 bg-white dark:bg-[#1c2e24] px-4 min-h-[72px] py-2 justify-between border-b border-gray-100 dark:border-gray-800/50">
+            <div class="flex flex-col justify-center">
+                <p class="text-slate-900 dark:text-white text-base font-medium leading-normal">Send Messages</p>
+                <p class="text-gray-500 dark:text-[#95c6a9] text-sm font-normal leading-normal">Only admins</p>
+            </div>
+            <div class="shrink-0">
+                <label
+                    class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-[#254632] p-0.5 has-[:checked]:justify-end has-[:checked]:bg-primary">
+                    <div class="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+                    <input class="invisible absolute" type="checkbox" />
+                </label>
+            </div>
+        </div>
+        <!-- List Item: Disappearing Messages -->
+        <div
+            class="flex items-center gap-4 bg-white dark:bg-[#1c2e24] px-4 min-h-[72px] py-2 justify-between cursor-pointer">
+            <div class="flex flex-col justify-center">
+                <p class="text-slate-900 dark:text-white text-base font-medium leading-normal">Disappearing messages</p>
+                <p class="text-gray-500 dark:text-[#95c6a9] text-sm font-normal leading-normal">Off</p>
+            </div>
+            <div class="shrink-0">
+                <span class="material-symbols-outlined text-gray-400 dark:text-[#95c6a9]">chevron_right</span>
+            </div>
+        </div>
+        <!-- Section: Pending Approvals Header -->
+        <div class="flex items-center justify-between px-4 pb-2 pt-8">
+            <h3 class="text-gray-500 dark:text-[#95c6a9] text-xs font-bold leading-tight tracking-[0.05em] uppercase">
+                Pending Approvals (2)</h3>
+        </div>
+        <!-- Pending Member List -->
+        <div class="space-y-px overflow-hidden">
+            <!-- Member Card 1 -->
+            <div
+                class="flex flex-col gap-3 bg-white dark:bg-[#1c2e24] p-4 border-b border-gray-100 dark:border-gray-800/50">
+                <div class="flex items-center gap-3">
+                    <div class="size-12 rounded-full overflow-hidden bg-gray-200">
+                        <img alt="Portrait of a professional man" class="h-full w-full object-cover"
+                            data-alt="Portrait of a professional man"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBalf-arA4gYFv3C6mDZJUaCuMyu-iYs0l3WS4YNNZNM0s66V9K7iRlICJK1fqim6v5dkSlxSwBrKPEkHkmVqVGfzHt5EK0diVLbNeR1bIvSN3sHxv1FmUdsNTBgGwX0Vh7eXcdOafmIWYlg-xdR7w3cb2najjDcAFeRz6sXbodyB7C22ZylgPgAcl9M7f6Xcfec-ialLJjfzrtT4I7Ms5fSWzgMorO8WLG4SKn8Zo39RKb_oq1Pyw6L6Bq-rts1qsjk8rUs2iTdzeC" />
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-slate-900 dark:text-white text-base font-semibold leading-tight">Alex Sterling
+                        </p>
+                        <p class="text-gray-500 dark:text-[#95c6a9] text-xs font-normal">Senior Product Designer • Adobe
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-2 pl-[60px]">
+                    <button
+                        class="flex-1 bg-primary text-white text-sm font-bold py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        Approve
+                    </button>
+                    <button
+                        class="flex-1 bg-gray-100 dark:bg-[#254632] text-slate-700 dark:text-white text-sm font-bold py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-[#2c523a] transition-colors">
+                        Decline
+                    </button>
+                </div>
+            </div>
+            <!-- Member Card 2 -->
+            <div
+                class="flex flex-col gap-3 bg-white dark:bg-[#1c2e24] p-4 border-b border-gray-100 dark:border-gray-800/50">
+                <div class="flex items-center gap-3">
+                    <div class="size-12 rounded-full overflow-hidden bg-gray-200">
+                        <img alt="Portrait of a professional woman" class="h-full w-full object-cover"
+                            data-alt="Portrait of a professional woman"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVQDZEP1esS8Xm6vSDHpjk5Gd728K4WIwbaFo5OH0rWuT8cYx-qNYYtO7FWXshSQ1zwyrHqOyMmBVnVIH3puG5KAcBQ6dZozz5wvmFRtZCsP7u5I7ZooD8E3S31K6Yb31FKoImXmrxJFbn7bkwjRpSCeaq-0fMOkmhKhPreoWF_3ek_yvryFuzwkLwP5Adxoo0eVZZFgvlv2CMYIm2L58Xl5PbufTIxIzbckkzOcX1fkzrwQtvqrzcJPtaxQq5G1O6wwUfioGa-sg3" />
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-slate-900 dark:text-white text-base font-semibold leading-tight">Sarah Chen</p>
+                        <p class="text-gray-500 dark:text-[#95c6a9] text-xs font-normal">Engineering Lead • Google</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 pl-[60px]">
+                    <button
+                        class="flex-1 bg-primary text-white text-sm font-bold py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        Approve
+                    </button>
+                    <button
+                        class="flex-1 bg-gray-100 dark:bg-[#254632] text-slate-700 dark:text-white text-sm font-bold py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-[#2c523a] transition-colors">
+                        Decline
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Section: Admins -->
+        <h3
+            class="text-gray-500 dark:text-[#95c6a9] text-xs font-bold leading-tight tracking-[0.05em] px-4 pb-2 pt-8 uppercase">
+            Admins</h3>
+        <div
+            class="flex items-center gap-4 bg-white dark:bg-[#1c2e24] px-4 min-h-[72px] py-2 justify-between cursor-pointer border-b border-gray-100 dark:border-gray-800/50">
+            <div class="flex flex-col justify-center">
+                <p class="text-slate-900 dark:text-white text-base font-medium leading-normal">Edit Group Admins</p>
+            </div>
+            <div class="shrink-0">
+                <span class="material-symbols-outlined text-gray-400 dark:text-[#95c6a9]">chevron_right</span>
+            </div>
+        </div>
+        <!-- Danger Zone -->
+        <div class="mt-12 px-4">
+            <button
+                class="w-full flex items-center justify-center gap-2 text-red-500 font-semibold py-4 bg-white dark:bg-[#1c2e24] rounded-xl shadow-sm border border-red-100 dark:border-red-900/30">
+                <span class="material-symbols-outlined">logout</span>
+                Exit Group
+            </button>
+        </div>
+    </div>
+    <!-- Sticky Bottom Action (Optional for iOS) -->
+    <div
+        class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-[#112117]/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 p-4 safe-area-bottom">
+        <button class="w-full bg-primary text-white h-14 rounded-2xl font-bold text-lg shadow-lg shadow-primary/20">
+            Save Changes
+        </button>
+    </div>
+</body>
+
+</html>

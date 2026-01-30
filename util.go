@@ -94,6 +94,22 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		/*now := UnixMillisecTime()
+
+		dbMutex.Lock()
+		next, exists := RATELIMIT[userUUID]
+		if exists && next > now {
+			dbMutex.Unlock()
+			c.JSON(429, gin.H{
+				"status":  "error",
+				"message": "too many requests",
+				"data":    "too many requests",
+			})
+			c.Abort()
+			return
+		}
+		RATELIMIT[userUUID] = now + int64(RATELIMITMILISECS)
+		dbMutex.Unlock()*/
 
 		c.Set("uuid", userUUID)
 		c.Next()
@@ -709,6 +725,13 @@ func QueryBadger(queryType, key string, values any) (Resss, error) {
 	if ss == 404 {
 		datos.StatusCode = 404
 		return datos, nil
+	}
+	if ss != 200 {
+		err = json.Unmarshal(resp, &datos)
+		if err != nil {
+			return Resss{}, err
+		}
+		return Resss{}, fmt.Errorf(datos.Message)
 	}
 	if err != nil {
 		return Resss{}, err
