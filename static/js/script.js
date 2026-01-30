@@ -228,9 +228,10 @@ function loadGroupChat(e) {
           if (data.data[i].resents == 1) {
             unread = "✔✔";
           }
+          let editmsgp = `<a href="javascript:void(0)" onclick="editMsg('${data.data[i].id}')">${data.data[i].text}</a>`;
           text += `
            <div class="message message-sent">
-            ${data.data[i].text}
+            ${editmsgp}
             <div class="message-status">${unread}</div>
             </div>
         `;
@@ -291,16 +292,16 @@ function editMember(e, nombre) {
   openModal();
 }
 
-function editMsg(idmsg){
+function editMsg(idmsg) {
   $("#datos").html(`
     <button type="button" class="btn btn-danger" onclick="eliminarMsg('${idmsg}')">ELIMINAR</button>`);
   openModal();
 }
 
-function salirGrupo(e){
+function salirGrupo(e) {
   let jwt = localStorage.getItem("JWT");
   let datos = {
-    group: CURRENT
+    group: CURRENT,
   };
   jsonRequest(JSON.stringify(datos), "/api/salirGrupo", jwt, (data, err) => {
     if (err != null) {
@@ -316,11 +317,11 @@ function salirGrupo(e){
   });
 }
 
-function eliminarMsg(e){
-    let jwt = localStorage.getItem("JWT");
+function eliminarMsg(e) {
+  let jwt = localStorage.getItem("JWT");
   let datos = {
     msg: e,
-    group: CURRENT
+    group: CURRENT,
   };
   jsonRequest(JSON.stringify(datos), "/api/eliminarMsg", jwt, (data, err) => {
     if (err != null) {
@@ -334,11 +335,11 @@ function eliminarMsg(e){
   });
 }
 
-function suspender(e){
-   let jwt = localStorage.getItem("JWT");
+function suspender(e) {
+  let jwt = localStorage.getItem("JWT");
   let datos = {
     user: e,
-    group: CURRENT
+    group: CURRENT,
   };
   jsonRequest(JSON.stringify(datos), "/api/suspender", jwt, (data, err) => {
     if (err != null) {
@@ -352,11 +353,11 @@ function suspender(e){
   });
 }
 
-function expulsar(e){
+function expulsar(e) {
   let jwt = localStorage.getItem("JWT");
   let datos = {
     user: e,
-    group: CURRENT
+    group: CURRENT,
   };
   jsonRequest(JSON.stringify(datos), "/api/expulsar", jwt, (data, err) => {
     if (err != null) {
@@ -407,9 +408,10 @@ function loadGroupChat2() {
           if (data.data[i].resents == 1) {
             unread = "✔✔";
           }
+          let editmsgp = `<a href="javascript:void(0)" onclick="editMsg('${data.data[i].id}')">${data.data[i].text}</a>`;
           text += `
            <div class="message message-sent">
-            ${data.data[i].text}
+            ${editmsgp}
             <div class="message-status">${unread}</div>
             </div>
         `;

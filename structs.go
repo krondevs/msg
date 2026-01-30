@@ -18,11 +18,7 @@ type Message struct {
 }
 
 type RegisterForm struct {
-	Nombre         string            `form:"nombre" binding:"required"`
-	Apellido       string            `form:"apellido" binding:"required"`
-	Cedula         string            `form:"cedula" binding:"required"`
 	Apodo          string            `form:"apodo" binding:"required"`
-	Correo         string            `form:"correo" binding:"required,email"`
 	Password       string            `form:"password" binding:"required"`
 	Telefono       string            `form:"telefono"`
 	Pais           string            `form:"pais"`

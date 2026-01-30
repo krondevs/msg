@@ -159,11 +159,6 @@ func eliminarMsg(ctx *gin.Context) {
 		ctx.JSON(401, gin.H{"status": "success", "message": "ok", "data": ""})
 		return
 	}
-	_, ex = datosGrupo.Owners[uuiduser.(string)]
-	if !ex {
-		ctx.JSON(401, gin.H{"status": "success", "message": "ok", "data": ""})
-		return
-	}
 	dat, _ = QueryBadger("SELECT", datos["msg"], "")
 	if dat.StatusCode == 404 {
 		fmt.Println("no hay registros")
@@ -452,28 +447,15 @@ func UpdateUser(uuid string, form User) error {
 }
 
 func InsertUser(form RegisterForm, uuid string) (string, error) {
-	if form.Apodo == "" || form.Correo == "" {
-		return "", fmt.Errorf("invalid email or apodo")
-	}
 	form.Chats = map[string]string{}
 	_, err := QueryBadger("INSERT", form.Apodo, form)
 	if err != nil {
 		fmt.Println(err)
 		return "", err
 	}
-	_, err = QueryBadger("INSERT", form.Correo, form)
-	if err != nil {
-		fmt.Println(err)
-		QueryBadger("DELETE", form.Apodo, "")
-		return "", err
-	}
 
 	_, err = QueryBadger("INSERT", uuid, form)
-	if err != nil {
-		fmt.Println(err)
-		QueryBadger("DELETE", form.Correo, "")
-		return "", err
-	}
+
 	return uuid, nil
 }
 
@@ -835,7 +817,6 @@ func insertAdmin() {
 			Password:  pass,
 			CreatedAt: DateTime(),
 			UserType:  "SUPERUSER",
-			Correo:    "admin@msg.com",
 			Chats:     map[string]string{},
 			ID:        uuid,
 		}
