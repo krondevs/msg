@@ -43,7 +43,7 @@ func main() {
 	r.Static("/static", "static")
 
 	r.GET("/", func(c *gin.Context) {
-		c.HTML(200, "search.html", nil)
+		c.HTML(200, "index.html", map[string]string{"Group": ""})
 	})
 
 	//r.POST("/login")
@@ -433,14 +433,9 @@ func UpdateUser(uuid string, form User) error {
 	if err != nil {
 		return err
 	}
-	_, err = QueryBadger("UPDATE", form.Correo, form)
-	if err != nil {
-		QueryBadger("DELETE", form.Apodo, "")
-		return err
-	}
 	_, err = QueryBadger("UPDATE", uuid, form)
 	if err != nil {
-		QueryBadger("DELETE", form.Correo, "")
+		QueryBadger("DELETE", form.Apodo, "")
 		return err
 	}
 	return err
