@@ -305,7 +305,7 @@
     const registerForm = document.getElementById("registerForm");
 
     function register() {
-      sendMultiPartData("POST", "/register", "registerForm", (data, err) => {
+      sendMultiPartData("POST", "/public/register", "registerForm", (data, err) => {
         if (err != null) {
           showNotification("no se puedo registrar", "danger");
           console.error(err);
@@ -335,7 +335,7 @@
       let datos = objetizeForm("loginForm");
       datos.password += "";
       datos = JSON.stringify(datos);
-      jsonRequest(datos, "/signin", "", (data, err) => {
+      jsonRequest(datos, "/public/signin", "", (data, err) => {
         if (err != null) {
           showNotification(err.message, "danger");
           return

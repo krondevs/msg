@@ -20,7 +20,7 @@ var DB = ""
 var dbMutex = sync.RWMutex{}
 var TYPYING = make(map[string]int64)
 var RATELIMIT = make(map[string]int64)
-var RATELIMITMILISECS = 10
+var RATELIMITMILISECS = 1000
 
 const SETFILE = "./settings.json"
 
@@ -56,6 +56,10 @@ func main() {
 		ctx.HTML(200, "index.html", map[string]string{"Group": ""})
 	})
 
+	r.GET("/pub", func(ctx *gin.Context) {
+		ctx.HTML(200, "index.html", map[string]string{"Group": ""})
+	})
+
 	r.GET("/app/:token", func(ctx *gin.Context) {
 		token := ctx.Param("token")
 		fmt.Println(token, "token")
@@ -86,14 +90,20 @@ func main() {
 		QueryBadger("UPDATE", group.ID, group)
 		ctx.HTML(200, "index.html", map[string]string{"Group": group.ID})
 	})
-
-	r.POST("/signin", login)
-
-	r.POST("/register", register)
-
-	r.GET("/join/:token", join)
-
 	r.GET("/download/:filename", downloadFile)
+
+	public := r.Group("/public", RateProtected())
+	{
+		public.POST("/signin", login)
+
+		public.POST("/login", login2)
+
+		public.POST("/register", register)
+
+		public.POST("/registerClient", registerClient)
+
+		public.POST("/search", search)
+	}
 
 	api := r.Group("/api", AuthMiddleware(SETTINGS["jwt"].(string)))
 	{
@@ -112,12 +122,263 @@ func main() {
 		api.POST("/expulsar", expulsar)
 		api.POST("/eliminarMsg", eliminarMsg)
 		api.POST("/salirGrupo", salirGrupo)
+		api.POST("/registerClient", registerClient2)
 	}
 
 	//BuildDatabase(SETTINGS["database"].(string), "sql.sql")
 	insertAdmin()
 	fmt.Println("server ir running...", SETTINGS["port"])
 	r.Run("0.0.0.0:" + SETTINGS["port"].(string))
+}
+
+func registerClient2(c *gin.Context) {
+	uuiduser, _ := c.Get("uuid")
+	var datos map[string]string
+	if err := c.ShouldBind(&datos); err != nil {
+		fmt.Println(err, "psao 1")
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error(), "data": ""})
+		return
+	}
+	chttr := "grp_" + uuiduser.(string)
+	newUser := uuiduser.(string)
+
+	///////////////////////////
+	user := User{}
+	olGroup := Chat{}
+	dat, _ := QueryBadger("SELECT", datos["grupo"], "")
+	if dat.StatusCode == 404 {
+		c.JSON(404, gin.H{"status": "error", "message": "se acaba de eliminar el grupo", "data": ""})
+		return
+	}
+	err := json.Unmarshal(dat.ResultByte, &olGroup)
+	if err != nil {
+		fmt.Println(err, "psao 3", datos["grupo"], "jjjj")
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error(), "data": ""})
+		return
+	}
+	owners := olGroup.Owners
+	for k := range olGroup.Owners {
+		dat, _ = QueryBadger("SELECT", k, "")
+		json.Unmarshal(dat.ResultByte, &user)
+		user.Chats["GROUP_"+chttr] = ""
+		UpdateUser(k, user)
+	}
+	//olGroup.Members[newUser] = ""
+	//QueryBadger("UPDATE", datos["grupo"], olGroup)
+	//////////////////////////////////
+
+	user = User{}
+	dat, _ = QueryBadger("SELECT", newUser, "")
+	json.Unmarshal(dat.ResultByte, &user)
+	user.Chats["GROUP_"+chttr] = ""
+	_, err = QueryBadger("UPDATE", newUser, user)
+	if err != nil {
+		fmt.Println(err, "psao 2")
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error(), "data": ""})
+		return
+	}
+
+	olGroup = Chat{}
+	olGroup.Members = map[string]string{newUser: ""}
+	olGroup.Owners = map[string]string{}
+
+	for k := range owners {
+		olGroup.Members[k] = ""
+		//olGroup.Owners[k] = ""
+	}
+
+	olGroup.DenuncedBy = map[string]string{}
+	olGroup.Tags = map[string]string{}
+	olGroup.ID = "GROUP_" + chttr
+	olGroup.Name = user.Apodo
+	link := uuid.New().String()
+	olGroup.Link = link
+	QueryBadger("INSERT", "GROUP_"+chttr, olGroup)
+	QueryBadger("UPDATE", "GROUP_"+chttr, olGroup)
+	QueryBadger("INSERT", link, map[string]string{"grupo": "GROUP_" + chttr})
+	c.JSON(200, gin.H{"status": "success", "message": "ok", "data": "GROUP_" + chttr})
+}
+
+func InsertClient(form User, uuid string) (string, error) {
+	if form.Apodo == "" || form.Correo == "" {
+		return "", fmt.Errorf("invalid email or apodo")
+	}
+	_, err := QueryBadger("INSERT", form.Apodo, form)
+	if err != nil {
+		fmt.Println(err, "1")
+		return "", err
+	}
+	_, err = QueryBadger("INSERT", uuid, form)
+	if err != nil {
+		fmt.Println(err, "3")
+		QueryBadger("DELETE", form.Apodo, "")
+		return "", err
+	}
+	return uuid, nil
+}
+
+func login2(ctx *gin.Context) {
+	var datos map[string]string
+	err := ctx.ShouldBindJSON(&datos)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(500, gin.H{"status": "error", "message": err, "data": ""})
+		return
+	}
+	if datos["apodo"] == "" {
+		fmt.Println("username is nill")
+		ctx.JSON(500, gin.H{"status": "error", "message": err, "data": ""})
+		return
+	}
+	dats, err := QueryBadger("SELECT", datos["apodo"], "")
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(500, gin.H{"status": "error", "message": err, "data": ""})
+		return
+	}
+	if dats.StatusCode == 404 {
+		ctx.JSON(404, gin.H{"status": "error", "message": "username not found", "data": ""})
+		return
+	}
+	var user User
+	err = json.Unmarshal(dats.ResultByte, &user)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(500, gin.H{"status": "error", "message": err, "data": ""})
+		return
+	}
+	if user.UserType != "USER" {
+		ctx.JSON(401, gin.H{"status": "error", "message": "unauthorized", "data": ""})
+		return
+	}
+	if !ValidatePassword(datos["password"], user.Password) {
+		ctx.JSON(401, gin.H{"status": "error", "message": "unauthorized", "data": ""})
+		return
+	}
+	jwt, err := GenerateJWT(user.ID, SETTINGS["jwt"].(string), int(Int(SETTINGS["duration"])))
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(500, gin.H{"status": "error", "message": err, "data": ""})
+		return
+	}
+	ctx.JSON(200, gin.H{"status": "success", "message": "ok", "data": jwt})
+}
+
+func registerClient(c *gin.Context) {
+	var datos map[string]string
+	if err := c.ShouldBind(&datos); err != nil {
+		fmt.Println(err, "psao 1")
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error(), "data": ""})
+		return
+	}
+	datos["password"] = strings.TrimSpace(datos["password"])
+	datos["email"] = strings.TrimSpace(datos["email"])
+	//chttr := Str(UnixMillisecTime())
+	newUser := "USER_" + uuid.New().String()
+	chttr := "grp_" + newUser
+
+	///////////////////////////
+	user := User{}
+	olGroup := Chat{}
+	dat, _ := QueryBadger("SELECT", datos["grupo"], "")
+	if dat.StatusCode == 404 {
+		c.JSON(404, gin.H{"status": "error", "message": "se acaba de eliminar el grupo", "data": ""})
+		return
+	}
+	err := json.Unmarshal(dat.ResultByte, &olGroup)
+	if err != nil {
+		fmt.Println(err, "psao 3", datos["grupo"], "jjjj")
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error(), "data": ""})
+		return
+	}
+	owners := olGroup.Owners
+	for k := range olGroup.Owners {
+		dat, _ = QueryBadger("SELECT", k, "")
+		json.Unmarshal(dat.ResultByte, &user)
+		user.Chats["GROUP_"+chttr] = ""
+		UpdateUser(k, user)
+	}
+	//olGroup.Members[newUser] = ""
+	//QueryBadger("UPDATE", datos["grupo"], olGroup)
+	//////////////////////////////////
+
+	user = User{}
+	user.Chats = map[string]string{"GROUP_" + chttr: ""}
+	user.KycStatus = "PENDING"
+	user.UserType = "USER"
+	user.CreatedAt = DateTime()
+	user.Apodo = datos["email"]
+	user.Correo = datos["email"]
+	user.Telefono = datos["telefono"]
+	user.Password, _ = HashPassword(datos["password"])
+	user.ID = newUser
+	_, err = InsertClient(user, newUser)
+	if err != nil {
+		fmt.Println(err, "psao 2")
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error(), "data": ""})
+		return
+	}
+
+	olGroup = Chat{}
+	olGroup.Members = map[string]string{newUser: ""}
+	olGroup.Owners = map[string]string{}
+
+	for k := range owners {
+		olGroup.Members[k] = ""
+		//olGroup.Owners[k] = ""
+	}
+
+	olGroup.DenuncedBy = map[string]string{}
+	olGroup.Tags = map[string]string{}
+	olGroup.ID = "GROUP_" + chttr
+	olGroup.Name = datos["email"]
+	link := uuid.New().String()
+	olGroup.Link = link
+	QueryBadger("INSERT", "GROUP_"+chttr, olGroup)
+	QueryBadger("INSERT", link, map[string]string{"grupo": "GROUP_" + chttr})
+
+	jwt, err := GenerateJWT(newUser, SETTINGS["jwt"].(string), int(Int(SETTINGS["duration"])))
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(500, gin.H{"status": "error", "message": err, "data": ""})
+		return
+	}
+	c.JSON(200, gin.H{"status": "success", "message": "ok", "data": jwt})
+}
+
+func search(ctx *gin.Context) {
+	var datos map[string]string
+	err := ctx.ShouldBindJSON(&datos)
+	if err != nil {
+		ctx.JSON(500, gin.H{"status": "error", "message": "ocurrio un error", "data": ""})
+		return
+	}
+	servicios := normalizeString(strings.ToLower(strings.TrimSpace(datos["servicio"])))
+	indices := Tokenize(servicios)
+	respuestas := map[string]Chat{}
+	for _, i := range indices {
+		dat, err := QueryBadger("SELECT", i, 100)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		if dat.StatusCode == 404 {
+			continue
+		}
+		hh := map[string]Chat{}
+		err = json.Unmarshal(dat.ResultByte, &hh)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		for k, v := range hh {
+			_, ex := respuestas[k]
+			if !ex {
+				respuestas[k] = v
+			}
+		}
+	}
+	ctx.JSON(200, gin.H{"status": "success", "message": "ok", "data": respuestas})
 }
 
 func salirGrupo(ctx *gin.Context) {
@@ -299,7 +560,7 @@ func uploadFile(ctx *gin.Context) {
 		Text:      nombreArchivo,
 		EditedAt:  "",
 		DeletedAt: "",
-		Status:    "OK",
+		Status:    "✔",
 		Filename:  "",
 		MediaType: "",
 		Apodo:     user.Apodo,
@@ -416,7 +677,7 @@ func register(c *gin.Context) {
 	//PrintData(form)
 	form.Chats = map[string]string{}
 	form.KycStatus = "PENDING"
-	form.UserType = "USER"
+	form.UserType = "ADMIN"
 	form.CreatedAt = DateTime()
 	form.Password, _ = HashPassword(form.Password)
 	newUser := "USER_" + uuid.New().String()
@@ -523,6 +784,7 @@ func sendMessage(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"status": "success", "message": "ok", "data": ""})
 		return
 	}
+
 	dat, _ = QueryBadger("SELECT", "MSGS_"+datos["group"], "")
 	hh := []string{}
 	idmsg := "MSG_" + uuid.New().String()
@@ -534,7 +796,7 @@ func sendMessage(ctx *gin.Context) {
 		Text:      datos["msg"],
 		EditedAt:  "",
 		DeletedAt: "",
-		Status:    "OK",
+		Status:    "✔",
 		Filename:  "",
 		MediaType: "",
 		Apodo:     user.Apodo,
@@ -625,11 +887,11 @@ func loadGroupChat(ctx *gin.Context) {
 		if chat.DeletedAt == "" {
 			msgs = append(msgs, chat)
 		}
-		/*if chat.FromUser != uuiduser.(string) && chat.ReSendts == 0 {
-			chat.ReSendts = 1
+		if chat.FromUser != uuiduser.(string) && chat.Status == "✔" {
+			chat.Status = "✔✔"
 			QueryBadger("UPDATE", i, chat)
 			fmt.Println("read")
-		}*/
+		}
 	}
 
 	ctx.JSON(200, gin.H{"status": "success", "message": "", "data": msgs, "me": uuiduser, "datosGrupo": datosGrupo})
@@ -658,10 +920,16 @@ func addNewGroup(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"status": "error", "message": "descripcion muy larga", "data": ""})
 		return
 	}
+	var user User
+	dat, _ := QueryBadger("SELECT", uuiduser.(string), "")
+	json.Unmarshal(dat.ResultByte, &user)
+	if user.UserType == "USER" {
+		ctx.JSON(401, gin.H{"status": "error", "message": "no autorizado", "data": ""})
+		return
+	}
 	chat.Members = map[string]string{uuiduser.(string): ""}
 	chat.DenuncedBy = map[string]string{}
 	chat.Owners = map[string]string{uuiduser.(string): ""}
-	//PrintData(chat)
 	indices := []string{}
 	especialidad := normalizeString(strings.ToLower(strings.TrimSpace(chat.Specialty)))
 	descripcion := normalizeString(strings.ToLower(strings.TrimSpace(chat.Description)))
@@ -672,7 +940,12 @@ func addNewGroup(ctx *gin.Context) {
 	chat.City = strings.ToUpper(strings.TrimSpace(chat.City))
 	chat.Country = strings.ToUpper(strings.TrimSpace(chat.Country))
 	chat.Specialty = strings.ToUpper(strings.TrimSpace(chat.Specialty))
-	dat, _ := QueryBadger("SELECT", "PROPS", "")
+	tags := map[string]string{}
+	for _, i := range indices {
+		tags[i] = ""
+	}
+	chat.Tags = tags
+	dat, _ = QueryBadger("SELECT", "PROPS", "")
 	dd := CategoriesEtc{}
 	if dat.StatusCode == 404 {
 		dd = CategoriesEtc{
@@ -703,9 +976,7 @@ func addNewGroup(ctx *gin.Context) {
 	chat.Link = link
 	QueryBadger("INSERT", "GROUP_"+chttr, chat)
 	QueryBadger("INSERT", link, map[string]string{"group": "GROUP_" + chttr})
-	var user User
-	dat, _ = QueryBadger("SELECT", uuiduser.(string), "")
-	json.Unmarshal(dat.ResultByte, &user)
+
 	user.Chats["GROUP_"+chttr] = ""
 	UpdateUser(uuiduser.(string), user)
 	if len(indices) > 20 {
@@ -834,6 +1105,15 @@ func login(ctx *gin.Context) {
 	}
 	var user User
 	err = json.Unmarshal(dats.ResultByte, &user)
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(500, gin.H{"status": "error", "message": err, "data": ""})
+		return
+	}
+	if user.UserType == "USER" {
+		ctx.JSON(401, gin.H{"status": "error", "message": "unauthorized", "data": ""})
+		return
+	}
 	if !ValidatePassword(datos["password"], user.Password) {
 		ctx.JSON(401, gin.H{"status": "error", "message": "unauthorized", "data": ""})
 		return

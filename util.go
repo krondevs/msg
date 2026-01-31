@@ -107,6 +107,35 @@ func FloatToString(v interface{}) string {
 	}
 }
 
+func RateProtected() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Obtener la dirección IP del cliente
+		clientIP := c.ClientIP()
+		if clientIP == "" {
+			clientIP = c.Request.RemoteAddr
+		}
+		now := UnixMillisecTime()
+
+		dbMutex.Lock()
+		next, exists := RATELIMIT[clientIP]
+		if exists && next > now {
+			dbMutex.Unlock()
+			c.JSON(429, gin.H{
+				"status":  "error",
+				"message": "too many requests",
+				"data":    "too many requests",
+			})
+			c.Abort()
+			return
+		}
+		RATELIMIT[clientIP] = now + int64(RATELIMITMILISECS)
+		dbMutex.Unlock()
+
+		c.Set("ip", clientIP)
+		c.Next()
+	}
+}
+
 func AuthMiddleware(secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")

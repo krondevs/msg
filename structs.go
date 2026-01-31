@@ -40,6 +40,29 @@ type RegisterForm struct {
 	ID             string            `json:"id"`
 }
 
+type RegisterFormClient struct {
+	Nombre         string            `form:"nombre" binding:"required"`
+	Apellido       string            `form:"apellido"`
+	Cedula         string            `form:"cedula"`
+	Apodo          string            `form:"apodo"`
+	Correo         string            `form:"correo" binding:"required, email"`
+	Password       string            `form:"password" binding:"required"`
+	Telefono       string            `form:"telefono"`
+	Pais           string            `form:"pais"`
+	Estado         string            `form:"estado"`
+	Ciudad         string            `form:"ciudad"`
+	Direccion      string            `form:"direccion"`
+	FotoPerfil     string            `json:"foto_perfil"`
+	SelfieDoc      string            `json:"selfie_doc"`
+	FotoDocumento  string            `json:"foto_documento"`
+	ReciboServicio string            `json:"recibo_servicio"`
+	KycStatus      string            `json:"kycstatus"`
+	Chats          map[string]string `json:"chats"`
+	CreatedAt      string            `json:"created_at"`
+	UserType       string            `json:"user_type"`
+	ID             string            `json:"id"`
+}
+
 type Multimedia struct {
 	Current string `form:"current" binding:"required"`
 }
@@ -148,6 +171,7 @@ type Chat struct {
 	Owners        map[string]string `json:"owner"`
 	Link          string            `json:"link"`
 	LockedByAdmin bool              `json:"locked"`
+	Tags          map[string]string `json:"tags"`
 }
 
 type CategoriesEtc struct {

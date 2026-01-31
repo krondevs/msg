@@ -143,6 +143,7 @@ function sendMessage() {
         loadGroupChat2();
         scrollToBottom(1000);
         $("#msg").focus();
+        //setTimeout(loadGroupChat2(CURRENT), 1000);
       },
     );
   }
@@ -225,13 +226,10 @@ function loadGroupChat(e) {
         //console.log(data.data[i]);
         let unread = "✔";
         if (data.data[i].from_user == data.me) {
-          if (data.data[i].resents == 1) {
-            unread = "✔✔";
-          }
           text += `
            <div class="message message-sent">
             ${data.data[i].text}
-            <div class="message-status">${unread}</div>
+            <div class="message-status">${data.data[i].status}</div>
             </div>
         `;
         } else {
@@ -404,13 +402,10 @@ function loadGroupChat2() {
         //console.log(data.data[i]);
         let unread = "✔";
         if (data.data[i].from_user == data.me) {
-          if (data.data[i].resents == 1) {
-            unread = "✔✔";
-          }
           text += `
            <div class="message message-sent">
             ${data.data[i].text}
-            <div class="message-status">${unread}</div>
+            <div class="message-status">${data.data[i].status}</div>
             </div>
         `;
         } else {
@@ -462,6 +457,7 @@ function loadGroupChat2() {
         scrollToBottom(1000);
         CONT = ctn;
       }
+      //$("#chatMessages").html(text);
       console.log(CONT, ctn);
     },
   );

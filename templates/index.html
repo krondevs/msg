@@ -40,6 +40,157 @@
     .badge-warning:hover {
       background-color: #e0a800;
     }
+
+    .whatsapp-search-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #f0f2f5;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .whatsapp-search-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .whatsapp-search-header h2 {
+      color: #128c7e;
+      font-weight: 600;
+      font-size: 24px;
+      margin: 0;
+    }
+
+    .whatsapp-search-form {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .whatsapp-search-input {
+      width: 100%;
+      padding: 15px 20px 15px 50px;
+      border: none;
+      border-radius: 20px;
+      background-color: #ffffff;
+      font-size: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .whatsapp-search-input:focus {
+      box-shadow: 0 1px 5px rgba(18, 140, 126, 0.3);
+      background-color: #ffffff;
+    }
+
+    .whatsapp-search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #868686;
+      font-size: 18px;
+    }
+
+    .whatsapp-search-button {
+      width: 100%;
+      padding: 15px;
+      background-color: #128c7e;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(18, 140, 126, 0.2);
+    }
+
+    .whatsapp-search-button:hover {
+      background-color: #075e54;
+      transform: translateY(-2px);
+      box-shadow: 0 3px 8px rgba(18, 140, 126, 0.3);
+    }
+
+    .whatsapp-search-button:active {
+      transform: translateY(0);
+    }
+
+    .whatsapp-search-results {
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .whatsapp-search-result-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e0e0e0;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .whatsapp-search-result-item:hover {
+      background-color: #e8f5f4;
+    }
+
+    .whatsapp-search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .whatsapp-search-result-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .whatsapp-search-result-description {
+      font-size: 14px;
+      color: #888;
+    }
+
+    /* Estilos responsivos */
+    @media (max-width: 600px) {
+      .whatsapp-search-container {
+        margin: 10px;
+        padding: 15px;
+      }
+
+      .whatsapp-search-header h2 {
+        font-size: 20px;
+      }
+
+      .whatsapp-search-input {
+        padding: 12px 15px 12px 40px;
+        font-size: 14px;
+      }
+
+      .whatsapp-search-icon {
+        left: 15px;
+        font-size: 16px;
+      }
+    }
+
+    /* Scrollbar personalizada */
+    .whatsapp-search-results::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .whatsapp-search-results::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    .whatsapp-search-results::-webkit-scrollbar-thumb {
+      background: #c5c5c5;
+      border-radius: 3px;
+    }
+
+    .whatsapp-search-results::-webkit-scrollbar-thumb:hover {
+      background: #a0a0a0;
+    }
   </style>
 </head>
 
@@ -54,7 +205,9 @@
 
         </div>
         <div class="chat-header-actions">
-          <span>👥</span>
+          <button class="action-btn" onclick="openSearch()" aria-label="Buscar">
+            🔎
+          </button>
           <button class="action-btn" id="toggleSearch" aria-label="Buscar">
             🔍
           </button>
@@ -86,19 +239,18 @@
       </div>
 
       <div class="chat-input">
-        
+
         <textarea class="form-control" type="text" id="msg" placeholder="Escribe un mensaje"> </textarea>
         <button onclick="sendMessage()" type="button">➤</button>
         <div id="noti">
-        <button class="btn btn-secondary" type="button" onclick="document.getElementById('fileInput').click()"><span
-            style="font-size: 25px;">📎</span></button>
+          <button class="btn btn-secondary" type="button" onclick="document.getElementById('fileInput').click()"><span
+              style="font-size: 25px;">📎</span></button>
         </div>
       </div>
     </div>
   </div>
   <form id="arch" enctype="multipart/form-data">
-    <input type="file" accept="*" name="fileInput" id="fileInput" style="display: none;"
-      onchange="uploadFile()">
+    <input type="file" accept="*" name="fileInput" id="fileInput" style="display: none;" onchange="uploadFile()">
     <input type="hidden" name="current" id="current" value="">
   </form>
   <div class="sidebar" id="sidebar">
@@ -184,12 +336,83 @@
           loadGroupChat2();
           //scrollToBottom(1000);
           $("#msg").focus();
-          setTimeout(()=>{
-             $("#noti").html(`<button class="btn btn-secondary" type="button" onclick="document.getElementById('fileInput').click()"><span
+          setTimeout(() => {
+            $("#noti").html(`<button class="btn btn-secondary" type="button" onclick="document.getElementById('fileInput').click()"><span
             style="font-size: 25px;">📎</span></button>`);
           }, 2000);
         });
       }
+    }
+
+    function openSearch() {
+      $("#datos").html(`
+        <div class="whatsapp-search-container">
+        <div class="whatsapp-search-header">
+            <h2>Buscar Servicios</h2>
+        </div>
+        
+        <form class="whatsapp-search-form" id="whatsappSearchForm">
+            <i class="whatsapp-search-icon">🔍</i>
+            <input 
+                type="text" 
+                class="whatsapp-search-input" 
+                id="whatsappSearchInput"
+                placeholder="Buscar servicios"
+                autocomplete="off"
+            >
+        </form>
+        
+        <button class="whatsapp-search-button" onclick="rearchServs()">
+            Buscar
+        </button>
+        
+        <div class="whatsapp-search-results" id="searchResults">
+            <!-- Resultados de búsqueda se mostrarán aquí -->
+        </div>
+    </div>
+      `);
+      openModal();
+    }
+
+    function rearchServs() {
+      let servicio = $("#whatsappSearchInput").val();
+      if (servicio == "") {
+        return
+      }
+      let datos = {
+        servicio: servicio
+      }
+      jsonRequest(JSON.stringify(datos), "/public/search", null, (data, err) => {
+        if (err != null) {
+          showNotification(data.message, "danger");
+          return
+        }
+        let text = "";
+        for (let i in data.data) {
+          text += `<div class="whatsapp-search-result-item" onclick="selectServ('${i}')">
+                      <div class="whatsapp-search-result-title">${data.data[i].intermediary} | ${data.data[i].contact}</div>
+                      <div class="whatsapp-search-result-description"> Profesionales a cargo: ${Object.keys(data.data[i].members).length}</div>
+                  </div>
+                    `
+        }
+        $("#searchResults").html(text);
+      });
+    }
+
+    function selectServ(e) {
+      let datos = {
+        grupo: e
+      }
+      let jwt = localStorage.getItem("JWT");
+      jsonRequest(JSON.stringify(datos), "/api/registerClient", jwt, (data, err) => {
+        if (err != null) {
+          showNotification(err.message, "danger");
+          return
+        }
+        getGroupsList();
+        loadGroupChat(data.data);
+        closeModal();
+      });
     }
   </script>
 </body>

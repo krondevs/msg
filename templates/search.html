@@ -1,483 +1,464 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/static/css/bootstrap.min.css">
-<script src="/static/js/jquery-3.6.3.min.js"></script>
-<title>Búsqueda de Servicios</title>
-<style>
-:root{
-    --bg:#ece5dd;
-    --card:#ffffff;
-    --text:#1f2937;
-    --muted:#6b7280;
-    --primary:#25d366;
-    --primary-dark:#128c7e;
-    --border:#e5e7eb;
-    --shadow:0 12px 28px rgba(0,0,0,0.12);
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <script src="/static/js/jquery-3.6.3.min.js"></script>
+    <title>Búsqueda de Servicios</title>
+    <style>
+        :root {
+            --bg: #ece5dd;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --primary: #25d366;
+            --primary-dark: #128c7e;
+            --border: #e5e7eb;
+            --shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        }
 
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-body{
-    font-family:Arial, sans-serif;
-    background:var(--bg);
-    color:var(--text);
-}
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
 
-.app{
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    padding:16px;
-    gap:16px;
-}
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 16px;
+        }
 
-.header{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    color:var(--primary-dark);
-    font-weight:bold;
-}
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
 
-.logo{
-    width:38px;
-    height:38px;
-    border-radius:12px;
-    background:var(--primary);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#fff;
-    font-size:18px;
-}
+        .logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+        }
 
-.container{
-    width:100%;
-    max-width:520px;
-    margin:0 auto;
-    background:var(--card);
-    border-radius:16px;
-    box-shadow:var(--shadow);
-    overflow:hidden;
-}
+        .container {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
 
-.progress{
-    display:flex;
-    gap:6px;
-    padding:12px 16px 0 16px;
-}
+        .progress {
+            display: flex;
+            gap: 6px;
+            padding: 12px 16px 0 16px;
+        }
 
-.dot{
-    flex:1;
-    height:6px;
-    border-radius:999px;
-    background:#e5e7eb;
-    transition:background 0.3s ease;
-}
+        .dot {
+            flex: 1;
+            height: 6px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            transition: background 0.3s ease;
+        }
 
-.dot.active{
-    background:var(--primary);
-}
+        .dot.active {
+            background: var(--primary);
+        }
 
-.form{
-    padding:16px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-}
+        .form {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-.step{
-    display:none;
-    opacity:0;
-    transform:translateX(12px);
-    transition:opacity 0.25s ease, transform 0.25s ease;
-}
+        .step {
+            display: none;
+            opacity: 0;
+            transform: translateX(12px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
 
-.step.active{
-    display:block;
-    opacity:1;
-    transform:translateX(0);
-}
+        .step.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
 
-.form-row{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-}
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-.input, .select{
-    padding:12px 14px;
-    border:1px solid var(--border);
-    border-radius:10px;
-    outline:none;
-    font-size:14px;
-}
+        .input,
+        .select {
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+        }
 
-.input:focus, .select:focus{
-    border-color:var(--primary);
-}
+        .input:focus,
+        .select:focus {
+            border-color: var(--primary);
+        }
 
-.btn-row{
-    display:flex;
-    gap:10px;
-}
+        .btn-row {
+            display: flex;
+            gap: 10px;
+        }
 
-.btn{
-    background:var(--primary);
-    color:#fff;
-    border:none;
-    padding:12px 14px;
-    border-radius:10px;
-    cursor:pointer;
-    font-weight:bold;
-    flex:1;
-}
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+        }
 
-.btn.secondary{
-    background:#e9f7ef;
-    color:#0f766e;
-    border:1px solid #b7ebc6;
-}
+        .btn.secondary {
+            background: #e9f7ef;
+            color: #0f766e;
+            border: 1px solid #b7ebc6;
+        }
 
-.helper{
-    font-size:12px;
-    color:var(--muted);
-}
+        .helper {
+            font-size: 12px;
+            color: var(--muted);
+        }
 
-.grid-2{
-    display:grid;
-    gap:10px;
-    grid-template-columns:1fr;
-}
+        .grid-2 {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: 1fr;
+        }
 
-.summary{
-    background:#f8fafc;
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:12px;
-    font-size:14px;
-    color:var(--text);
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-}
+        .summary {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 14px;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-.results{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-}
+        .results {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-.result-card{
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:12px;
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    background:#fff;
-    cursor:pointer;
-    transition:transform 0.2s ease, box-shadow 0.2s ease;
-}
+        .result-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #fff;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
-.result-card:hover{
-    transform:translateY(-2px);
-    box-shadow:0 8px 20px rgba(0,0,0,0.08);
-}
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
 
-.result-title{
-    font-weight:bold;
-    color:var(--primary-dark);
-}
+        .result-title {
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
 
-.result-meta{
-    font-size:13px;
-    color:var(--muted);
-}
+        .result-meta {
+            font-size: 13px;
+            color: var(--muted);
+        }
 
-.selected-box{
-    border:1px dashed #9ae6b4;
-    background:#f0fdf4;
-    border-radius:10px;
-    padding:10px;
-    font-size:13px;
-    color:#0f766e;
-}
+        .selected-box {
+            border: 1px dashed #9ae6b4;
+            background: #f0fdf4;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 13px;
+            color: #0f766e;
+        }
 
-@media (min-width:700px){
-    .app{
-        align-items:center;
-        justify-content:center;
-    }
-    .container{
-        max-width:740px;
-    }
-    .grid-2{
-        grid-template-columns:1fr 1fr;
-    }
-}
-</style>
+        @media (min-width:700px) {
+            .app {
+                align-items: center;
+                justify-content: center;
+            }
+
+            .container {
+                max-width: 740px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
 </head>
-<body onload="initWizard()">
-<div class="app">
-    <div class="header">
-        <div class="logo">🟢</div>
-        <div>Buscar Servicios</div>
-    </div>
 
-    <div class="container">
-        <div class="progress" id="progress">
-            <div class="dot active"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
+<body onload="initWizard()">
+    <div class="app">
+        <div class="header">
+            <div class="logo">🟢</div>
+            <div>Buscar Servicios</div>
         </div>
 
-        <form class="form" id="wizard">
-            <div class="step active" data-step="0">
-                <div class="form-row">
-                    <label>¿Cómo te llamas?</label>
-                    <input class="input" type="text" id="nombre"
-                        placeholder="Tu nombre">
-                </div>
-                <div class="helper">
-                    Así personalizamos la búsqueda para ti.
-                </div>
-                <div class="btn-row">
-                    <button class="btn" type="button" onclick="nextStep()">
-                        Continuar
-                    </button>
-                </div>
+        <div class="container">
+            <div class="progress" id="progress">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
             </div>
 
-            <div class="step" data-step="1">
-                <div class="grid-2">
+            <form class="form" id="wizard">
+                <div class="step active" data-step="0">
                     <div class="form-row">
-                        <label>País</label>
-                        <select class="select" id="pais">
-                            <option value="">Selecciona tu país</option>
-                            <option>Venezuela</option>
-                            <option>Colombia</option>
-                            <option>Perú</option>
-                            <option>México</option>
-                            <option>Argentina</option>
-                            <option>Chile</option>
-                            <option>España</option>
-                            <option>Otro</option>
-                        </select>
+                        <label>¿Cómo te llamas?</label>
+                        <input class="input" type="text" name="nombre" id="nombre" placeholder="Tu nombre">
                     </div>
-                    <div class="form-row">
-                        <label>Provincia o Estado</label>
-                        <input class="input" type="text" id="provincia"
-                            placeholder="Lara, Bogotá, Lima">
+                    <div class="helper">
+                        Así personalizamos la búsqueda para ti.
                     </div>
-                    <div class="form-row">
-                        <label>Ciudad</label>
-                        <input class="input" type="text" id="ciudad"
-                            placeholder="Barquisimeto">
+                    <div class="btn-row">
+                        <button class="btn" type="button" onclick="nextStep()">
+                            Continuar
+                        </button>
                     </div>
                 </div>
-                <div class="btn-row">
-                    <button class="btn secondary" type="button"
-                        onclick="prevStep()">
-                        Atrás
-                    </button>
-                    <button class="btn" type="button" onclick="nextStep()">
-                        Continuar
-                    </button>
-                </div>
-            </div>
 
-            <div class="step" data-step="2">
-                <div class="grid-2">
-                    <div class="form-row">
-                        <label>Servicio</label>
-                        <select class="select" id="servicio">
-                            <option value="">Selecciona un servicio</option>
-                            <option>Arquitectura</option>
-                            <option>Abogados</option>
-                            <option>Ingeniería</option>
-                            <option>Medicina</option>
-                            <option>Psicología</option>
-                            <option>Diseño gráfico</option>
-                            <option>Electricista</option>
-                            <option>Carpintería</option>
-                            <option>Plomería</option>
-                            <option>Otro</option>
-                        </select>
+                <div class="step" data-step="1">
+                    <div class="grid-2">
+                        <div class="form-row">
+                            <label>Especialidad</label>
+                            <input class="input" type="text" name="especialidad" id="especialidad"
+                                placeholder="Estructuras, penal, etc">
+                        </div>
                     </div>
-                    <div class="form-row">
-                        <label>Especialidad</label>
-                        <input class="input" type="text" id="especialidad"
-                            placeholder="Estructuras, penal, etc">
+                    <div class="helper">
+                        Puedes buscar por especialidad si lo deseas.
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn secondary" type="button" onclick="prevStep()">
+                            Atrás
+                        </button>
+                        <button class="btn" type="button" onclick="startSearch()">
+                            Buscar profesionales
+                        </button>
                     </div>
                 </div>
-                <div class="helper">
-                    Puedes buscar por especialidad si lo deseas.
-                </div>
-                <div class="btn-row">
-                    <button class="btn secondary" type="button"
-                        onclick="prevStep()">
-                        Atrás
-                    </button>
-                    <button class="btn" type="button"
-                        onclick="startSearch()">
-                        Buscar profesionales
-                    </button>
-                </div>
-            </div>
 
-            <div class="step" data-step="3">
-                <div class="summary" id="summary"></div>
-                <div class="results" id="resultsList"></div>
-                <div class="btn-row">
-                    <button class="btn secondary" type="button"
-                        onclick="prevStep()">
-                        Atrás
-                    </button>
+                <div class="step" data-step="2">
+                    <div class="summary" id="summary"></div>
+                    <div class="results" id="resultsList"></div>
+                    <div class="btn-row">
+                        <button class="btn secondary" type="button" onclick="prevStep()">
+                            Atrás
+                        </button>
+                    </div>
+                    <div class="helper">
+                        Elige un responsable para continuar.
+                    </div>
                 </div>
-                <div class="helper">
-                    Elige un responsable para continuar.
-                </div>
-            </div>
 
-            <div class="step" data-step="4">
-                <div class="selected-box" id="selectedBox">
-                    Responsable seleccionado: Ninguno
-                </div>
-                <div class="grid-2">
-                    <div class="form-row">
-                        <label>Cédula</label>
-                        <input class="input" type="text" id="cedula"
-                            placeholder="V-12345678">
+                <div class="step" data-step="3">
+                    <div class="selected-box" id="selectedBox">
+                        Responsable seleccionado: Ninguno
                     </div>
-                    <div class="form-row">
-                        <label>Teléfono</label>
-                        <input class="input" type="tel" id="telefono"
-                            placeholder="555-0000">
+                    <div class="grid-2">
+                        <div class="form-row">
+                            <label>Teléfono</label>
+                            <input class="input" type="tel" name="telefono" id="telefono" placeholder="555-0000">
+                        </div>
+                        <div class="form-row">
+                            <label>Dirección</label>
+                            <input class="input" type="text" name="direccion" id="direccion" placeholder="Calle, zona">
+                        </div>
                     </div>
-                    <div class="form-row">
-                        <label>Dirección</label>
-                        <input class="input" type="text" id="direccion"
-                            placeholder="Calle, número, zona">
+                    <div class="grid-2">
+                        <div class="form-row">
+                            <label>Correo</label>
+                            <input class="input" type="email" name="email" id="email" placeholder="alguien@mail.com">
+                        </div>
+                        <div class="form-row">
+                            <label>Contraseña</label>
+                            <input class="input" type="password" name="password" id="password" placeholder="********">
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn secondary" type="button" onclick="prevStep()">
+                            Atrás
+                        </button>
+                        <button class="btn" type="button" onclick="continuar()">
+                            Continuar solicitud
+                        </button>
+                    </div>
+                    <hr>
+                    <div class="btn-row">
+                        <a style="text-align: center;" href="javascript:void(0)" onclick="continuar()">
+                            Ya tengo cuenta
+                        </a>
+                    </div>
+                    <div class="helper">
+                        Igresa tus datos y elige un usuario y contraseña.
                     </div>
                 </div>
-                <div class="btn-row">
-                    <button class="btn secondary" type="button"
-                        onclick="prevStep()">
-                        Atrás
-                    </button>
-                    <button class="btn" type="button">
-                        Continuar solicitud
-                    </button>
-                </div>
-                <div class="helper">
-                    Estos datos ayudan a conectar con el profesional correcto.
-                </div>
-            </div>
-        </form>
+                <input type="hidden" name="grupo" id="grupo" value="">
+            </form>
+        </div>
     </div>
-</div>
 
-<script src="/static/js/bootstrap.bundle.min.js"></script>
-<script src="/static/js/jqueryx.js"></script>
-<script>
-let currentStep = 0;
-let selectedResponsible = null;
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/jqueryx.js"></script>
+    <script>
+        let currentStep = 0;
+        let selectedResponsible = null;
 
-function initWizard(){
-    setStep(0);
-}
+        const JWT = localStorage.getItem("JWT");
 
-function setStep(index){
-    const $steps = $(".step");
-    const $dots = $(".dot");
-    $steps.removeClass("active");
-    $dots.removeClass("active");
+        function initWizard() {
+            setStep(0);
+        }
 
-    currentStep = index;
-    $steps.eq(currentStep).addClass("active");
-    $dots.eq(currentStep).addClass("active");
+        function continuar() {
+            let datos = objetizeForm("wizard");
+            datos.telefono += "";
+            datos.password += "";
+            jsonRequest(JSON.stringify(datos), "/public/registerClient", null, (data, err) => {
+                if(err != null){
+                    showNotification(err.message, "danger");
+                    return
+                }
+                localStorage.setItem("JWT", data.data);
+                location.replace("/app");
+            });
+        }
 
-    if(currentStep === 3){
-        renderSummary();
-    }
-}
+        function setStep(index) {
+            const $steps = $(".step");
+            const $dots = $(".dot");
+            $steps.removeClass("active");
+            $dots.removeClass("active");
 
-function nextStep(){
-    if(currentStep < $(".step").length - 1){
-        setStep(currentStep + 1);
-    }
-}
+            currentStep = index;
+            $steps.eq(currentStep).addClass("active");
+            $dots.eq(currentStep).addClass("active");
 
-function prevStep(){
-    if(currentStep > 0){
-        setStep(currentStep - 1);
-    }
-}
+            if (currentStep === 2) {
+                renderSummary();
+            }
+        }
 
-function renderSummary(){
-    const data = {
-        Nombre: $("#nombre").val() || "No indicado",
-        País: $("#pais").val() || "No indicado",
-        Provincia: $("#provincia").val() || "No indicado",
-        Ciudad: $("#ciudad").val() || "No indicado",
-        Servicio: $("#servicio").val() || "No indicado",
-        Especialidad: $("#especialidad").val() || "No indicado"
-    };
+        function nextStep() {
+            if (currentStep < $(".step").length - 1) {
+                setStep(currentStep + 1);
+            }
+        }
 
-    const lines = Object.entries(data)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join("<br>");
-    $("#summary").html(lines);
-}
+        function prevStep() {
+            if (currentStep > 0) {
+                setStep(currentStep - 1);
+            }
+        }
 
-function startSearch(){
-    renderSummary();
-    renderResults();
-    setStep(3);
-}
+        function renderSummary() {
+            const data = {
+                Nombre: $("#nombre").val() || "No indicado",
+                Servicio: $("#especialidad").val() || "No indicado"
+            };
 
-function renderResults(){
-    const results = [
-        {apodo:"ArqSofia", cantidad:12},
-        {apodo:"LegalMart", cantidad:8},
-        {apodo:"IngCarlos", cantidad:15},
-        {apodo:"PsiLuz", cantidad:6}
-    ];
+            const lines = Object.entries(data)
+                .map(([k, v]) => `${k}: ${v}`)
+                .join("<br>");
+            $("#summary").html(lines);
+        }
 
-    const html = results.map(r => {
-        return `
-            <div class="result-card"
-                onclick="selectResult('${r.apodo}', ${r.cantidad})">
-                <div class="result-title">${r.apodo}</div>
-                <div class="result-meta">
-                    Profesionales a cargo: ${r.cantidad}
-                </div>
-            </div>
-        `;
-    }).join("");
+        function startSearch() {
+            renderSummary();
+            renderResults();
+            setStep(2);
+        }
 
-    $("#resultsList").html(html);
-}
+        function renderResults() {
+            let nombre = $("#nombre").val();
+            let servicio = $("#especialidad").val();
+            nombre = nombre.trim();
+            if (nombre == "" || servicio == "") {
+                return
+            }
+            let datos = {
+                cliente: nombre,
+                servicio: servicio
+            }
+            localStorage.setItem("NOMBRE", nombre);
+            jsonRequest(JSON.stringify(datos), "/public/search", null, (data, err) => {
+                if (err != null) {
+                    showNotification(data.message, "danger");
+                    return
+                }
+                let text = "";
+                for (let i in data.data) {
+                    text += `
+                        <div class="result-card" onclick="selectResult('${data.data[i].intermediary} ${data.data[i].contact}', '${Object.keys(data.data[i].members).length}', '${i}')">
+                          <div class="result-title">${data.data[i].intermediary} | ${data.data[i].contact}</div>
+                            <div class="result-meta">
+                               Profesionales a cargo: ${Object.keys(data.data[i].members).length}
+                            </div>
+                        </div>
+                    `
+                }
+                $("#resultsList").html(text);
+            });
+        }
 
-function selectResult(apodo, cantidad){
-    selectedResponsible = {apodo, cantidad};
-    $("#selectedBox").text(
-        `Responsable seleccionado: ${apodo} ` +
-        `(${cantidad} profesionales)`
-    );
-    setStep(4);
-}
-</script>
+        function selectResult(apodo, cantidad, idOwner) {
+            selectedResponsible = { apodo, cantidad };
+            $("#selectedBox").text(
+                `Seleccionado: ${apodo} ` +
+                `(${cantidad} profesionales)`
+            );
+            setStep(3);
+            sessionStorage.setItem("GRUPO", idOwner);
+            $("#grupo").val(idOwner);
+        }
+    </script>
 </body>
+
 </html>

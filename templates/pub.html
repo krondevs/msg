@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+  <script src="/static/js/jquery-3.6.3.min.js"></script>
+  <link href="/static/css/style.css" rel="stylesheet" />
+  <link href="/static/css/stl.css" rel="stylesheet" />
+  <title>Chat Grupal</title>
+  <style>
+    .badge {
+      display: inline-block;
+      padding: 0.35em 0.65em;
+      font-size: 0.75em;
+      font-weight: 700;
+      line-height: 1;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: baseline;
+      border-radius: 0.375rem;
+      transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .badge-success {
+      color: #fff;
+      background-color: #198754;
+    }
+
+    .badge-success:hover {
+      background-color: #156548;
+    }
+
+    .badge-warning {
+      color: #fff;
+      background-color: #ffc107;
+    }
+
+    .badge-warning:hover {
+      background-color: #e0a800;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="chat-container">
+      <div class="chat-header">
+        <button class="hamburger" id="openMenu" aria-label="Abrir menú">
+          ☰
+        </button>
+        <div class="chat-header-info" id="ginfo">
+
+        </div>
+        <div class="chat-header-actions">
+          <span>👥</span>
+          <button class="action-btn" id="toggleSearch" aria-label="Buscar">
+            🔍
+          </button>
+          <span id="toggleMenu">⋯</span>
+        </div>
+      </div>
+
+      <div class="search-bar" id="searchBar">
+        <input class="search-input" id="searchInput" type="text" placeholder="Buscar en el chat" />
+        <div class="search-nav">
+          <button class="search-btn" id="prevBtn" aria-label="Anterior">
+            ▲
+          </button>
+          <button class="search-btn" id="nextBtn" aria-label="Siguiente">
+            ▼
+          </button>
+        </div>
+        <span class="search-meta" id="searchMeta">0/0</span>
+      </div>
+
+      <div class="search-bar2" id="menuBar">
+        <h3>ESTO ES EL MENU DE OPCIONES</h3>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <!--<div class="message message-system">
+            María Pérez agregó a Carlos Rodríguez al grupo
+          </div>-->
+      </div>
+
+      <div class="chat-input">
+        
+        <textarea class="form-control" type="text" id="msg" placeholder="Escribe un mensaje"> </textarea>
+        <button onclick="sendMessage()" type="button">➤</button>
+        <div id="noti">
+        <button class="btn btn-secondary" type="button" onclick="document.getElementById('fileInput').click()"><span
+            style="font-size: 25px;">📎</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <form id="arch" enctype="multipart/form-data">
+    <input type="file" accept="*" name="fileInput" id="fileInput" style="display: none;"
+      onchange="uploadFile()">
+    <input type="hidden" name="current" id="current" value="">
+  </form>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">Grupos</div>
+    <ul class="group-list" id="groups">
+      <li class="group-item" onclick="createGroup()">
+        <div class="group-avatar">++</div>
+        <div class="group-info">
+          <span class="group-name">CREAR NUEVO GRUPO</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div id="miModal" class="modal">
+    <div class="modal-contenido">
+      <button class="btn" onclick="closeModal()">Cerrar</button>
+      <span class="cerrar-modal" onclick="closeModal()">&times;</span>
+      <div id="datos" style="max-height: 600px; overflow-y: scroll"></div>
+    </div>
+  </div>
+
+  <input type="hidden" id="currentChat" value="" />
+
+  <script src="/static/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/js/jqueryx.js"></script>
+  <script src="/static/js/script.js"></script>
+
+  <script>
+    const GROUPJOIN = "{{.Group}}";
+    
+    function uploadFile() {
+      $("#current").val(CURRENT);
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      let jwt = localStorage.getItem("JWT");
+      if (CURRENT == "") {
+        showNotification("grupo vacio", "danger");
+        $("#noti").html(`<button class="btn btn-secondary" type="button" onclick="document.getElementById('fileInput').click()"><span
+            style="font-size: 25px;">📎</span></button>`);
+        return
+      }
+      if (file) {
+        $("#noti").html(`<span class="badge" style="font-size: 20px;">📤</span>`);
+        console.log(CURRENT)
+        sendMultiPartData2("POST", "/api/uploadFile", jwt, "arch", (data, err) => {
+          if (err != null) {
+            $("#noti").html(`<button class="btn btn-secondary" type="button" onclick="document.getElementById('fileInput').click()"><span
+            style="font-size: 25px;">📎</span></button>`);
+            showNotification("no se pudo subir el archivo", "danger");
+            console.error(err);
+            return
+          }
+          //showNotification("ok", "success");
+          $("#noti").html(`<span class="badge" style="font-size: 20px;">✅</span>`);
+          $("#msg").val("");
+          loadGroupChat2();
+          //scrollToBottom(1000);
+          $("#msg").focus();
+          setTimeout(()=>{
+             $("#noti").html(`<button class="btn btn-secondary" type="button" onclick="document.getElementById('fileInput').click()"><span
+            style="font-size: 25px;">📎</span></button>`);
+          }, 2000);
+        });
+      }
+    }
+  </script>
+</body>
+
+</html>
