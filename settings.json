@@ -1,9 +1,9 @@
 {
-    "port":"5000",
+    "port":"5011",
     "jwt":"tIC5goAjgaDStKcN6j9ogfl5Vdli2uCd",
     "tor":false,
     "torport":"9050",
-    "dbhost":"http://127.0.0.1:3308/v1/data",
+    "dbhost":"http://127.0.0.1:3311/v1/data",
     "dbkey":"gorms",
     "dbname":"msg2",
     "duration":72
