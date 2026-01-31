@@ -191,6 +191,109 @@
     .whatsapp-search-results::-webkit-scrollbar-thumb:hover {
       background: #a0a0a0;
     }
+
+    .whatsapp-password-form {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #f0f2f5;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .whatsapp-password-form h2 {
+      text-align: center;
+      color: #128c7e;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    .whatsapp-password-input-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .whatsapp-password-input {
+      width: 100%;
+      padding: 15px 15px 15px 45px;
+      border: 2px solid #e9edef;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: white;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .whatsapp-password-input:focus {
+      outline: none;
+      border-color: #128c7e;
+      box-shadow: 0 0 0 2px rgba(18, 140, 126, 0.2);
+    }
+
+    .whatsapp-password-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #868686;
+      font-size: 18px;
+    }
+
+    .whatsapp-password-input::placeholder {
+      color: #a0a0a0;
+    }
+
+    .whatsapp-password-button {
+      width: 100%;
+      padding: 15px;
+      background-color: #128c7e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .whatsapp-password-button:hover {
+      background-color: #075e54;
+    }
+
+    .whatsapp-password-button:active {
+      transform: translateY(1px);
+    }
+
+    /* Estilos para el ícono de ojo */
+    .whatsapp-eye-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #868686;
+      font-size: 18px;
+    }
+
+    /* Estilos para el mensaje de error */
+    .whatsapp-password-error {
+      color: #e74c3c;
+      font-size: 14px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    /* Responsive design */
+    @media (max-width: 480px) {
+      .whatsapp-password-form {
+        margin: 10px;
+        padding: 15px;
+      }
+
+      .whatsapp-password-input {
+        padding: 12px 12px 12px 40px;
+      }
+    }
   </style>
 </head>
 
@@ -205,6 +308,7 @@
 
         </div>
         <div class="chat-header-actions">
+          <button class="action-btn" onclick="changePassword()">🔐</button>
           <button class="action-btn" onclick="openSearch()" aria-label="Buscar">
             🔎
           </button>
@@ -411,6 +515,72 @@
         }
         getGroupsList();
         loadGroupChat(data.data);
+        closeModal();
+      });
+    }
+
+    function changePassword(){
+      $("#datos").html(`
+      <form class="whatsapp-password-form" id="passwordUpdateForm">
+        <h2>Actualizar Contraseña</h2>
+        
+        <div class="whatsapp-password-input-container">
+            <span class="whatsapp-password-icon">🔒</span>
+            <input 
+                type="password" 
+                class="whatsapp-password-input" 
+                id="currentPassword"
+                name="currentPassword"
+                placeholder="Contraseña actual"
+                required
+            >
+            <span class="whatsapp-eye-icon" id="toggleCurrentPassword">👁️</span>
+        </div>
+        
+        <div class="whatsapp-password-input-container">
+            <span class="whatsapp-password-icon">🔒</span>
+            <input 
+                type="password" 
+                class="whatsapp-password-input" 
+                id="newPassword"
+                name="newPassword"
+                placeholder="Nueva contraseña"
+                required
+            >
+            <span class="whatsapp-eye-icon" id="toggleNewPassword">👁️</span>
+        </div>
+        
+        <div class="whatsapp-password-input-container">
+            <span class="whatsapp-password-icon">🔒</span>
+            <input 
+                type="password" 
+                class="whatsapp-password-input" 
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Confirmar nueva contraseña"
+                required
+            >
+            <span class="whatsapp-eye-icon" id="toggleConfirmPassword">👁️</span>
+        </div>
+        
+        <button type="button" class="whatsapp-password-button" onclick="changePss()">Actualizar Contraseña</button>
+    </form>
+      `);
+      openModal();
+    }
+
+    function changePss(){
+      let datos = objetizeForm('passwordUpdateForm');
+      datos.currentPassword += "";
+      datos.newPassword += "";
+      datos.confirmPassword += "";
+      let jwt = localStorage.getItem("JWT");
+      jsonRequest(JSON.stringify(datos), "/api/changePss", jwt, (data, err) => {
+        if (err != null) {
+          showNotification(err.message, "danger");
+          return
+        }
+       showNotification("OK", "success");
         closeModal();
       });
     }

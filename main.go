@@ -123,12 +123,48 @@ func main() {
 		api.POST("/eliminarMsg", eliminarMsg)
 		api.POST("/salirGrupo", salirGrupo)
 		api.POST("/registerClient", registerClient2)
+		api.POST("/changePss", changePss)
 	}
 
 	//BuildDatabase(SETTINGS["database"].(string), "sql.sql")
 	insertAdmin()
 	fmt.Println("server ir running...", SETTINGS["port"])
 	r.Run("0.0.0.0:" + SETTINGS["port"].(string))
+}
+
+func changePss(ctx *gin.Context) {
+	uuiduser, _ := ctx.Get("uuid")
+	var pss PassChange
+	err := ctx.ShouldBindJSON(&pss)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error(), "data": ""})
+		return
+	}
+	pss.NewPassword = strings.TrimSpace(pss.NewPassword)
+	pss.ConfirmPassword = strings.TrimSpace(pss.ConfirmPassword)
+	pss.CurrentPassword = strings.TrimSpace(pss.CurrentPassword)
+	var user User
+	dat, _ := QueryBadger("SELECT", uuiduser.(string), "")
+	if dat.StatusCode == 404 {
+		ctx.JSON(404, gin.H{"status": "error", "message": "not found", "data": ""})
+		return
+	}
+	err = json.Unmarshal(dat.ResultByte, &user)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error(), "data": ""})
+		return
+	}
+	if !ValidatePassword(pss.CurrentPassword, user.Password) {
+		ctx.JSON(401, gin.H{"status": "error", "message": "unauthorized", "data": ""})
+		return
+	}
+	if pss.NewPassword != pss.ConfirmPassword {
+		ctx.JSON(403, gin.H{"status": "error", "message": "bad request", "data": ""})
+		return
+	}
+	user.Password, _ = HashPassword(pss.NewPassword)
+	UpdateUser(uuiduser.(string), user)
+	ctx.JSON(200, gin.H{"status": "success", "message": "ok", "data": ""})
 }
 
 func registerClient2(c *gin.Context) {

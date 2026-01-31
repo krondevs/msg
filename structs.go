@@ -184,3 +184,9 @@ type MsgPagination struct {
 	Max     int    `json:"max"`
 	UuidMsg string `json:"msgs"`
 }
+
+type PassChange struct {
+	ConfirmPassword string `json:"confirmPassword"`
+	NewPassword     string `json:"newPassword"`
+	CurrentPassword string `json:"currentPassword"`
+}
